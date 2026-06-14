@@ -46,7 +46,7 @@ for(const data of jsonTestData)
 
 //Load CSV test data logindata.json
 
-const csvPath = "testdata/logindata.csv";
+const csvPath = "TestData/logindata.csv";
 const csvTestData = DataProvider.getTestDataFromCsv(csvPath);
 
 
