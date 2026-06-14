@@ -8,8 +8,8 @@ import { HomePage } from '../pages/HomePage';
 
 //Load JSON test data logindata.json
 
-const jsonPath="testdata/logindata.json";
-const jsonTestData=DataProvider.getTestDataFromJson(jsonPath);
+const jsonPath = "TestData/logindata.json";
+const jsonTestData = DataProvider.getTestDataFromJson(jsonPath);
 
 
 for(const data of jsonTestData)
