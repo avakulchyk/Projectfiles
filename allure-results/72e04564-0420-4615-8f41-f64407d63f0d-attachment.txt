@@ -1,0 +1,16 @@
+✅ Registration is completed!
+✅ Logout is completed!
+✅ Login is completed!
+✅ Product added to cart!
+🛒 Navigated to shopping cart!
+Unable to retrieve total price: Error: locator.textContent: SyntaxError: Failed to execute 'evaluate' on 'Document': The string '//tr[td[normalize-space()='Total']]//td`)' is not a valid XPath expression.
+    at Object.queryAll (<anonymous>:6017:25)
+    at InjectedScript._queryEngineAll (<anonymous>:6730:49)
+    at InjectedScript.querySelectorAll (<anonymous>:6717:30)
+    at InjectedScript.querySelector (<anonymous>:6629:25)
+    at eval (eval at evaluate (:302:30), <anonymous>:3:39)
+    at UtilityScript.evaluate (<anonymous>:304:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+Call log:
+  - waiting for locator('//tr[td[normalize-space()=\'Total\']]//td`)')
+
