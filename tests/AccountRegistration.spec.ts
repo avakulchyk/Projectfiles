@@ -167,6 +167,7 @@ test('Register with existing email shows error', async ({ page }) => {
     await registrationPage.clickContinue();
 
     // Web-first assertion for the warning too
-    await expect(registrationPage.notificationAlerts)
-  .toContainText('Warning: E-Mail Address is already registered!');
+   await registrationPage.expectErrorMessageContains(
+  'Warning: E-Mail Address is already registered!'
+);
 });
