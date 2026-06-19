@@ -1,6 +1,9 @@
 import { Page, expect, Locator } from '@playwright/test';
 
 export class HomePage {
+    clickLogout() {
+      throw new Error('Method not implemented.');
+    }
     private readonly page: Page;
     
     // Locators

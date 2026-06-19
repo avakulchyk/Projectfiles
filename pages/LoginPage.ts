@@ -19,6 +19,12 @@ export class LoginPage {
         this.btnLogin = page.locator("button[class='btn btn-primary']");
         this.txtErrorMessage=page.locator('.alert.alert-danger.alert-dismissible');
     }
+    
+    async waitForPageLoad() {
+        await this.txtEmailAddress.waitFor({ state: 'visible' });
+        await this.txtPassword.waitFor({ state: 'visible' });
+        await this.btnLogin.waitFor({ state: 'visible' });
+    }
 
     /**
      * Sets the email address in the email field

@@ -12,6 +12,14 @@ export class LogoutPage {
     }
 
     /**
+     * Public accessor for the Continue button locator,
+     * so tests can use web-first assertions (e.g. expect(...).toBeVisible())
+     */
+    get continueButton(): Locator {
+        return this.btnContinue;
+    }
+
+    /**
      * Clicks the Continue button after logout
      * @returns Promise<HomePage> - Returns instance of HomePage
      */
@@ -23,6 +31,7 @@ export class LogoutPage {
     /**
      * Verifies if the Continue button is visible
      * @returns Promise<boolean> - Returns true if button is visible
+     * @deprecated prefer `expect(logoutPage.continueButton).toBeVisible()` for auto-retrying assertions
      */
     async isContinueButtonVisible(): Promise<boolean> {
         return await this.btnContinue.isVisible();
