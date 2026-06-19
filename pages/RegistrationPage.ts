@@ -3,15 +3,7 @@ import { Page, Locator, expect } from '@playwright/test';
 export class RegistrationPage {
   private readonly page: Page;
 
-  readonly firstNameInput: Locator;
-  readonly lastNameInput: Locator;
-  readonly emailInput: Locator;
-  readonly passwordInput: Locator;
-  readonly subscribeToggle: Locator;
-  readonly privacyPolicyCheckbox: Locator;
-  readonly continueButton: Locator;
-  readonly notificationAlerts: Locator;
-  readonly confirmationMsg: Locator;
+  
 
   constructor(page: Page) {
     this.page = page;
@@ -27,22 +19,20 @@ export class RegistrationPage {
     this.confirmationMsg = page.locator("div[id='content'] h1");
   }
 
-  async navigate(): Promise<void> {
-    await this.page.goto(
-      'http://localhost/opencart/upload/index.php?route=account/register&language=en-gb'
-    );
-  }
-
-  async getUrl(): Promise<string> {
-    return this.page.url();
-  }
+  // Locators (STRICT: all private)
+  private readonly firstNameInput: Locator;
+  private readonly lastNameInput: Locator;
+  private readonly emailInput: Locator;
+  private readonly passwordInput: Locator;
+  private readonly subscribeToggle: Locator;
+  private readonly privacyPolicyCheckbox: Locator;
+  private readonly continueButton: Locator;
+  private readonly notificationAlerts: Locator;
+  private readonly confirmationMsg: Locator;
+  
 
   async getWarningMsg(): Promise<string> {
     return (await this.notificationAlerts.textContent()) ?? '';
-  }
-
-  async warningMessage(expectedMessage: string): Promise<void> {
-    await expect(this.notificationAlerts).toContainText(expectedMessage);
   }
 
   async setFirstName(fname: string): Promise<void> {
