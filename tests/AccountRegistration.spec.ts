@@ -100,29 +100,20 @@ test('User registration test  with all mandatory fields filled @master @sanity @
 })
 
 
-test(
-  'Validate proper notification messages are displayed for mandatory fields when submitting an empty Register Account form',  async () => {
+test('Validate empty Register Account form', async () => {
 
-    //Go to 'My Account' click 'Register and Continue'
-    await homePage.clickMyAccount();
-    await homePage.clickRegister();
-    await registrationPage.clickContinue();
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+  await registrationPage.clickContinue();
 
+  await registrationPage.expectErrorMessageContains(
+    'Warning: You must agree to the Privacy Policy!'
+  );
 
-    await expect(registrationPage.notificationAlerts)
-      .toContainText('Warning: You must agree to the Privacy Policy!');
-
-    await expect(registrationPage.firstNameInput)
-      .toHaveText('First Name must be between 1 and 32 characters!');
-
-    await expect(registrationPage.lastNameInput)
-      .toHaveText('Last Name must be between 1 and 32 characters!');
-
-    await expect(registrationPage.emailInput)
-      .toHaveText('E-Mail Address does not appear to be valid!');
-
-    await expect(registrationPage.passwordInput)
-      .toHaveText('Password must be between 6 and 40 characters!');
+  await registrationPage.expectFirstNameError();
+  await registrationPage.expectLastNameError();
+  await registrationPage.expectEmailError();
+  await registrationPage.expectPasswordError();
 });
 
 test('Register with existing email shows error', async ({ page }) => {
@@ -144,8 +135,8 @@ test('Register with existing email shows error', async ({ page }) => {
     await registrationPage.clickContinue();
 
     // Web-first assertion: auto-retries until text appears, avoids race conditions
-    await expect(registrationPage.confirmationMsg)
-      .toContainText('Your Account Has Been Created!');
+    expect(await registrationPage.getConfirmationMsg())
+  .toContain('Your Account Has Been Created!');
 
     // STEP 2: logout
     const myAccountPage = new MyAccountPage(page);
