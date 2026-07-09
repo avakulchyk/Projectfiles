@@ -212,4 +212,24 @@ test('Validate Register Account placeholders @regression', async ({ page }) => {
 
 });
 
+test('User registration without accepting Privacy Policy and newsletter unchecked @master @regression', async () => {
+
+    const user = RandomDataUtil.getUser();
+
+    await homePage.clickMyAccount();
+    await homePage.clickRegister();
+
+    await registrationPage.setFirstName(user.firstName);
+    await registrationPage.setLastName(user.lastName);
+    await registrationPage.setEmail(user.email);
+    await registrationPage.setPassword(user.password);
+
+    await registrationPage.setSubscribe(false);
+
+    // Don't check Privacy Policy
+
+    await registrationPage.clickContinue();
+
+    await registrationPage.expectPrivacyPolicyError();
+});
 
