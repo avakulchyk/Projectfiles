@@ -1,6 +1,9 @@
 import { Page, Locator, expect } from '@playwright/test';
 
 export class RegistrationPage {
+  getNotificationAlert() {
+    throw new Error('Method not implemented.');
+  }
 
   private readonly page: Page;
 
@@ -168,7 +171,12 @@ async expectPasswordError(): Promise<void> {
       'Password must be between 6 and 40 characters!'
     );
 }
-
+async expectPrivacyPolicyError(): Promise<void> {
+  await expect(this.notificationAlerts)
+    .toContainText(
+      'Warning: You must agree to the Privacy Policy!'
+    );
+}
   // ======================
   // Browser HTML5 Validation
   // ======================

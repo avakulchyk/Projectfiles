@@ -29,86 +29,54 @@ test.beforeEach(async ({ page }) => {
 });
 
 
-test('User registration test @master @sanity @regression', async () => {
+test('User registration test with mandatory fields @master @sanity @regression', async ({ page }) => {
 
-    await homePage.clickMyAccount();
+  const user = RandomDataUtil.getUser();
 
-    await homePage.clickRegister();
+  await homePage.clickMyAccount();
 
+  await homePage.clickRegister();
 
-    await registrationPage.setFirstName(
-        RandomDataUtil.getFirstName()
-    );
+  await registrationPage.setFirstName(user.firstName);
 
-    await registrationPage.setLastName(
-        RandomDataUtil.getlastName()
-    );
+  await registrationPage.setLastName(user.lastName);
 
-    await registrationPage.setEmail(
-        RandomDataUtil.getEmail()
-    );
+  await registrationPage.setEmail(user.email);
 
+  await registrationPage.setPassword(user.password);
 
-    const password = RandomDataUtil.getPassword();
+  await registrationPage.setPrivacyPolicy();
 
-    await registrationPage.setPassword(password);
+  await registrationPage.clickContinue();
 
-
-    await registrationPage.setPrivacyPolicy();
-
-    await registrationPage.clickContinue();
-
-
-    const confirmationMsg =
-        await registrationPage.getConfirmationMsg();
-
-
-    expect(confirmationMsg)
+  const confirmationMsg = await registrationPage.getConfirmationMsg();
+  
+  expect(confirmationMsg)
         .toContain('Your Account Has Been Created!');
-
 });
 
 
-test('User registration with newsletter subscription @master @sanity @regression', async () => {
+test('User registration with newsletter subscription @master @sanity @regression', async ({ page }) => {
+
+    const user = RandomDataUtil.getUser();
 
     await homePage.clickMyAccount();
-
     await homePage.clickRegister();
 
-
-    await registrationPage.setFirstName(
-        RandomDataUtil.getFirstName()
-    );
-
-    await registrationPage.setLastName(
-        RandomDataUtil.getlastName()
-    );
-
-    await registrationPage.setEmail(
-        RandomDataUtil.getEmail()
-    );
-
-
-    const password = RandomDataUtil.getPassword();
-
-    await registrationPage.setPassword(password);
-
+    await registrationPage.setFirstName(user.firstName);
+    await registrationPage.setLastName(user.lastName);
+    await registrationPage.setEmail(user.email);
+    await registrationPage.setPassword(user.password);
 
     await registrationPage.setSubscribe(true);
-
     await registrationPage.setPrivacyPolicy();
-
 
     await registrationPage.clickContinue();
 
-
-    const confirmationMsg =
-        await registrationPage.getConfirmationMsg();
-
+    const confirmationMsg = await registrationPage.getConfirmationMsg();
 
     expect(confirmationMsg)
         .toContain('Your Account Has Been Created!');
-
 });
 
 
@@ -216,8 +184,7 @@ test('Register with existing email shows error @regression', async ({ page }) =>
 
 
 test('Register with invalid email shows browser validation error @regression', async ({ page }) => {
-  const homePage = new HomePage(page);
-  const registrationPage = new RegistrationPage(page);
+
   const user = RandomDataUtil.getUser();
 
   await homePage.clickMyAccount();
@@ -242,4 +209,7 @@ test('Validate Register Account placeholders @regression', async ({ page }) => {
   await registrationPage.expectLastNamePlaceholder();
   await registrationPage.expectEmailPlaceholder();
   await registrationPage.expectPasswordPlaceholder();
+
 });
+
+
