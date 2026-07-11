@@ -224,6 +224,7 @@ test('User registration without accepting Privacy Policy and newsletter unchecke
     await registrationPage.setEmail(user.email);
     await registrationPage.setPassword(user.password);
 
+    //Not obligatory to set newsletter subscription, but we can set it to false to be explicit
     await registrationPage.setSubscribe(false);
 
     // Don't check Privacy Policy
@@ -233,3 +234,11 @@ test('User registration without accepting Privacy Policy and newsletter unchecke
     await registrationPage.expectPrivacyPolicyError();
 });
 
+test('Validate all mandatory fields are marked with red * symbol @master @sanity @regression', async () => {
+
+  await homePage.clickMyAccount();
+
+  await homePage.clickRegister();
+
+  await registrationPage.expectMandatoryFieldsMarked();
+});

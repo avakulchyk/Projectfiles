@@ -1,9 +1,9 @@
 import { Page, Locator, expect } from '@playwright/test';
 
 export class RegistrationPage {
-  getNotificationAlert() {
-    throw new Error('Method not implemented.');
-  }
+  //getNotificationAlert() {
+    //throw new Error('Method not implemented.');
+  //}
 
   private readonly page: Page;
 
@@ -28,6 +28,9 @@ export class RegistrationPage {
 
   private readonly notificationAlerts: Locator;
   private readonly confirmationMsg: Locator;
+  
+  private readonly requiredMarks: Locator;
+
 
 
   constructor(page: Page) {
@@ -39,6 +42,8 @@ export class RegistrationPage {
     this.emailInput = page.locator('#input-email');
     this.passwordInput = page.locator('#input-password');
 
+    // Required field indicators
+    this.requiredMarks = page.locator('.row.mb-3.required label.col-form-label');
 
     // Validation messages
     this.firstNameError = page.locator(
@@ -177,6 +182,36 @@ async expectPrivacyPolicyError(): Promise<void> {
       'Warning: You must agree to the Privacy Policy!'
     );
 }
+
+async expectMandatoryFieldsMarked(): Promise<void> {
+
+  await expect(this.requiredMarks)
+    .toHaveCount(4);
+
+  for (const label of await this.requiredMarks.all()) {
+
+    await expect(label)
+      .toBeVisible();
+
+    const styles = await label.evaluate((el) => {
+      const pseudo = getComputedStyle(el, '::before');
+
+      return {
+        content: pseudo.content
+          .replace(/['"]/g, '')
+          .trim(),
+
+        color: pseudo.color
+      };
+    });
+
+    expect(styles.content)
+      .toBe('*');
+
+    expect(styles.color)
+      .toBe('rgb(255, 0, 0)');
+  }
+}
   // ======================
   // Browser HTML5 Validation
   // ======================
@@ -238,7 +273,6 @@ async expectPrivacyPolicyError(): Promise<void> {
       );
   }
 
-
   async expectErrorMessageContains(text: string): Promise<void> {
 
     await expect(this.notificationAlerts)
@@ -247,7 +281,6 @@ async expectPrivacyPolicyError(): Promise<void> {
     await expect(this.notificationAlerts)
       .toContainText(text);
   }
-
 
 
   // ======================
