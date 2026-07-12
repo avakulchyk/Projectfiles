@@ -167,7 +167,7 @@ export class RegistrationPage {
       .toHaveText(expectedMessage);
   }
   
-async expectPasswordError(): Promise<void> {
+async expectPasswordError(p0: string): Promise<void> {
   await expect(this.passwordError)
     .toBeVisible();
 
