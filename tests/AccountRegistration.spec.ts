@@ -101,7 +101,7 @@ test('Validate empty Register Account form @regression', async () => {
 
     await registrationPage.expectEmailError('E-Mail Address does not appear to be valid!');
 
-    await registrationPage.expectPasswordError();
+    await registrationPage.expectPasswordError('Password must be between 6 and 40 characters!');
 
 });
 
@@ -179,7 +179,62 @@ test('Register with existing email shows error @regression', async ({ page }) =>
     await registrationPage.expectErrorMessageContains(
         'Warning: E-Mail Address is already registered!'
     );
+});
 
+test('Register with empty first name shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName('');
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword(user.password);
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectFirstNameError();
+});
+
+test('Register with first name containing only spaces shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName('     ');
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword(user.password);
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectFirstNameError();
+});
+
+test('Register with first name longer than 32 characters shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  const longFirstName = 'A'.repeat(33);
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName(longFirstName);
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword(user.password);
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectFirstNameError();
 });
 
 
@@ -199,6 +254,88 @@ test('Register with invalid email shows browser validation error @regression', a
   await registrationPage.clickContinue();
 
   await registrationPage.expectBrowserEmailError();
+});
+
+test('Register with password shorter than 6 characters shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName(user.firstName);
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword('12345'); // 5 characters
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectPasswordError(
+    'Password must be between 6 and 40 characters!'
+);
+});
+
+test('Register with empty password shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName(user.firstName);
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword('');
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectPasswordError(
+    'Password must be between 6 and 40 characters!'
+  );
+});
+
+test('Register with password containing only spaces shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName(user.firstName);
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword('      '); // 6 spaces
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectPasswordError(
+    'Password must be between 6 and 40 characters!'
+  );
+});
+
+test('Register with password longer than 40 characters shows validation error @regression', async ({ page }) => {
+
+  const user = RandomDataUtil.getUser();
+
+  const longPassword = 'A'.repeat(41);
+
+  await homePage.clickMyAccount();
+  await homePage.clickRegister();
+
+  await registrationPage.setFirstName(user.firstName);
+  await registrationPage.setLastName(user.lastName);
+  await registrationPage.setEmail(user.email);
+  await registrationPage.setPassword(longPassword);
+  await registrationPage.setPrivacyPolicy();
+
+  await registrationPage.clickContinue();
+
+  await registrationPage.expectPasswordError(
+    'Password must be between 6 and 40 characters!'
+  );
 });
 
 test('Validate Register Account placeholders @regression', async ({ page }) => {
