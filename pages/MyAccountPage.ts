@@ -2,6 +2,9 @@ import { Page, Locator, expect } from '@playwright/test';
 import { LogoutPage } from './LogoutPage'; // Import LogoutPage if needed
 
 export class MyAccountPage {
+    myAccountHeading(myAccountHeading: any) {
+      throw new Error('Method not implemented.');
+    }
     private readonly page: Page;
     
     // Locators using CSS selectors

@@ -89,3 +89,28 @@ test('Validate logging into the Application using invalid credentials @master @r
     expect(isLoggedIn).toBeFalsy();
 
 });
+
+test('Validate logging into the application using a valid email address and an invalid password @master @regression', async ({ page }) => {
+
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    // Enter valid email
+    await loginPage.setEmail(config.email);
+
+    // Enter invalid password
+    await loginPage.setPassword(RandomDataUtil.getPassword());
+
+    // Click Login
+    await loginPage.clickLogin();
+
+    // Verify user remains on Login page
+    await expect(page).toHaveURL(/route=account\/login/);
+
+    // Verify error message
+    const errorMessage = await loginPage.getloginErrorMessage();
+
+    expect(errorMessage).toContain(
+        'Warning: No match for E-Mail Address and/or Password.'
+    );
+});
