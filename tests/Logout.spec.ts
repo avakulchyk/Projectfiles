@@ -65,3 +65,21 @@ test('User logout test @master @regression', async () => {
   homePage = await logoutPage.clickContinue();
   expect(await homePage.isHomePageExists()).toBe(true);
 });
+
+test('Validate logging into the application without providing any credentials @master @sanity @regression', async ({ page }) => {
+  // Navigate to Login page
+  await homePage.clickMyAccount();
+  await homePage.clickLogin();
+
+  // Leave Email and Password fields empty
+  await loginPage.clickLogin();
+
+  // Verify user remains on the Login page
+  await expect(page).toHaveURL(/route=account\/login/);
+
+  // Verify warning message is displayed
+  const errorMessage = await loginPage.getloginErrorMessage();
+  expect(errorMessage).toContain(
+    'Warning: No match for E-Mail Address and/or Password.'
+  );
+});
