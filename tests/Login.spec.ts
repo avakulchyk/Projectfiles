@@ -114,3 +114,18 @@ test('Validate logging into the application using a valid email address and an i
         'Warning: No match for E-Mail Address and/or Password.'
     );
 });
+test("Validate 'Forgotten Password' link is available in the Login page and is working @master @sanity @regression", async ({ page }) => {
+
+    // Navigate to Login page
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    // Verify Forgotten Password link is visible
+    await loginPage.expectForgottenPasswordLinkVisible();
+
+    // Click Forgotten Password link
+    await loginPage.clickForgottenPassword();
+
+    // Verify user is redirected to Forgotten Password page
+    await expect(page).toHaveURL(/route=account\/forgotten/);
+});

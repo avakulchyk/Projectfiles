@@ -1,6 +1,9 @@
-import { Page, Locator } from '@playwright/test';
+import { expect, Page, Locator } from '@playwright/test';
 
 export class LoginPage {
+    expectWarningMessage(arg0: string) {
+      throw new Error('Method not implemented.');
+    }
     private readonly page: Page;
     
     // Locators
@@ -8,6 +11,7 @@ export class LoginPage {
     private readonly txtPassword: Locator;
     private readonly btnLogin: Locator;
     private readonly txtErrorMessage: Locator;
+    private readonly lnkForgottenPassword: Locator;
     
 
     constructor(page: Page) {
@@ -18,6 +22,9 @@ export class LoginPage {
         this.txtPassword = page.locator('#input-password');
         this.btnLogin = page.locator("button[class='btn btn-primary']");
         this.txtErrorMessage=page.locator('.alert.alert-danger.alert-dismissible');
+
+          // Forgotten Password link
+       this.lnkForgottenPassword = page.locator("#form-login div[class='mb-3'] a");
     }
     
     async waitForPageLoad() {
@@ -45,10 +52,16 @@ export class LoginPage {
     /**
      * Clicks the login button
      */
-    async clickLogin(){
+    async clickLogin(): Promise<void>{
         await this.btnLogin.click();
     }
+    async clickForgottenPassword(): Promise<void> {
+        await this.lnkForgottenPassword.click();
+    }
 
+    async expectForgottenPasswordLinkVisible(): Promise<void> {
+    await expect (this.lnkForgottenPassword).toBeVisible();
+}
     /**
      * Performs complete login action
      * @param email - Email address to enter
