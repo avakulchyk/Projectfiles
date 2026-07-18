@@ -1,39 +1,85 @@
-import { Page, Locator } from '@playwright/test';
+import { expect, Page, Locator } from '@playwright/test';
 import { HomePage } from './HomePage';
 
 export class LogoutPage {
+
     private readonly page: Page;
+
     private readonly btnContinue: Locator;
+    private readonly txtLogoutHeading: Locator;
+
 
     constructor(page: Page) {
+
         this.page = page;
-        // Using CSS selector with :has-text() pseudo-class for text matching
-        this.btnContinue = page.locator('.btn.btn-primary');
+
+        this.btnContinue = page.locator(
+            '.btn.btn-primary'
+        );
+
+        this.txtLogoutHeading = page.locator(
+            'h1'
+        );
     }
 
-    /**
-     * Public accessor for the Continue button locator,
-     * so tests can use web-first assertions (e.g. expect(...).toBeVisible())
-     */
-    get continueButton(): Locator {
-        return this.btnContinue;
-    }
 
-    /**
-     * Clicks the Continue button after logout
-     * @returns Promise<HomePage> - Returns instance of HomePage
-     */
+    // ======================
+    // Actions
+    // ======================
+
     async clickContinue(): Promise<HomePage> {
+
         await this.btnContinue.click();
+
+        await this.page.waitForLoadState(
+            'networkidle'
+        );
+
         return new HomePage(this.page);
     }
 
-    /**
-     * Verifies if the Continue button is visible
-     * @returns Promise<boolean> - Returns true if button is visible
-     * @deprecated prefer `expect(logoutPage.continueButton).toBeVisible()` for auto-retrying assertions
-     */
-    async isContinueButtonVisible(): Promise<boolean> {
-        return await this.btnContinue.isVisible();
+
+    async goBack(): Promise<void> {
+
+        await this.page.goBack();
+
+        await this.page.waitForLoadState(
+            'networkidle'
+        );
     }
+
+
+    // ======================
+    // Validations
+    // ======================
+
+    async expectLogoutPage(): Promise<void> {
+
+        await expect(this.page)
+            .toHaveURL(/route=account\/logout/);
+
+
+        await expect(this.txtLogoutHeading)
+            .toContainText(
+                'Account Logout'
+            );
+    }
+
+
+    async expectContinueButtonVisible(): Promise<void> {
+
+        await expect(this.btnContinue)
+            .toBeVisible();
+    }
+
+
+    // ======================
+    // Getters
+    // ======================
+
+    get continueButton(): Locator {
+
+        return this.btnContinue;
+    }
+
 }

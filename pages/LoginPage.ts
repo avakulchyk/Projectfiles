@@ -21,21 +21,28 @@ export class LoginPage {
 
         // Login form fields
         this.txtEmailAddress = page.locator('#input-email');
+
         this.txtPassword = page.locator('#input-password');
 
+
         // Login button
-        this.btnLogin = page.locator("button[class='btn btn-primary']");
+        this.btnLogin = page.locator(
+            "button[class='btn btn-primary']"
+        );
+
 
         // Error / warning messages
         this.txtErrorMessage = page.locator(
             '.alert.alert-danger.alert-dismissible'
         );
 
+
         // Forgotten password link
         this.lnkForgottenPassword = page.locator(
             "#form-login div[class='mb-3'] a"
         );
     }
+
 
 
     // ======================
@@ -47,28 +54,38 @@ export class LoginPage {
      * Enter email address
      */
     async setEmail(email: string): Promise<void> {
+
         await this.txtEmailAddress.fill(email);
     }
+
 
 
     /**
      * Enter password
      */
     async setPassword(password: string): Promise<void> {
+
         await this.txtPassword.fill(password);
     }
+
 
 
     /**
      * Click Login button
      */
     async clickLogin(): Promise<void> {
+
         await this.btnLogin.click();
+
+        await this.page.waitForLoadState(
+            'networkidle'
+        );
     }
 
 
+
     /**
-     * Login with credentials
+     * Login with valid credentials
      */
     async login(
         email: string,
@@ -76,19 +93,12 @@ export class LoginPage {
     ): Promise<void> {
 
         await this.setEmail(email);
+
         await this.setPassword(password);
+
         await this.clickLogin();
     }
 
-
-    /**
-     * Click browser Back button
-     */
-    async goBack(): Promise<void> {
-
-        await this.page.goBack();
-        await this.page.waitForLoadState('networkidle');
-    }
 
 
     /**
@@ -97,6 +107,20 @@ export class LoginPage {
     async clickForgottenPassword(): Promise<void> {
 
         await this.lnkForgottenPassword.click();
+    }
+
+
+
+    /**
+     * Browser Back button
+     */
+    async goBack(): Promise<void> {
+
+        await this.page.goBack();
+
+        await this.page.waitForLoadState(
+            'networkidle'
+        );
     }
 
 
@@ -116,8 +140,9 @@ export class LoginPage {
     }
 
 
+
     /**
-     * Verify placeholders
+     * Verify email and password placeholders
      */
     async expectPlaceholders(): Promise<void> {
 
@@ -127,6 +152,7 @@ export class LoginPage {
                 'E-Mail Address'
             );
 
+
         await expect(this.txtPassword)
             .toHaveAttribute(
                 'placeholder',
@@ -135,8 +161,9 @@ export class LoginPage {
     }
 
 
+
     /**
-     * Verify login error message
+     * Verify invalid credentials error
      */
     async expectLoginErrorMessage(): Promise<void> {
 
@@ -145,6 +172,7 @@ export class LoginPage {
                 'Warning: No match for E-Mail Address and/or Password.'
             );
     }
+
 
 
     /**
@@ -166,10 +194,11 @@ export class LoginPage {
 
 
     /**
-     * Get login error message text
+     * Get error message text
      */
     async getLoginErrorMessage(): Promise<string | null> {
 
         return await this.txtErrorMessage.textContent();
     }
+
 }

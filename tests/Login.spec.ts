@@ -22,6 +22,7 @@ let homePage: HomePage;
 let loginPage: LoginPage;
 let myAccountPage: MyAccountPage;
 
+
 // This hook runs before each test
 test.beforeEach(async ({ page }) => {
   config = new TestConfig(); // Load config (URL, credentials)
@@ -78,7 +79,7 @@ test('Validate logging into the Application using invalid credentials @master @r
     await expect(page).toHaveURL(/route=account\/login/);
 
     // Verify error message is displayed
-    const errorMessage = await loginPage.getloginErrorMessage();
+    const errorMessage = await loginPage.getLoginErrorMessage();
 
     expect(errorMessage).toContain(
         'Warning: No match for E-Mail Address and/or Password.'
@@ -108,7 +109,7 @@ test('Validate logging into the application using a valid email address and an i
     await expect(page).toHaveURL(/route=account\/login/);
 
     // Verify error message
-    const errorMessage = await loginPage.getloginErrorMessage();
+    const errorMessage = await loginPage.getLoginErrorMessage();
 
     expect(errorMessage).toContain(
         'Warning: No match for E-Mail Address and/or Password.'
@@ -167,5 +168,47 @@ test('Validate Logging into the Application and browsing back using Browser Back
 
     // Step 8: Verify user can access My Account again
     expect(await myAccountPage.isMyAccountPageExists()).toBeTruthy();
+
+});
+
+test('Validate Logging out from the Application and browsing back using Browser Back button @master @regression', async ({ page }) => {
+
+
+    // Step 1: Login
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
+
+    // Step 2: Verify user logged in
+    expect(
+        await myAccountPage.isMyAccountPageExists()
+    ).toBeTruthy();
+
+
+    // Step 3: Logout
+    const logoutPage = await myAccountPage.clickLogout();
+
+
+    // Step 4: Verify logout page
+    await logoutPage.expectLogoutPage();
+
+
+    // Step 5: Browser Back
+    await logoutPage.goBack();
+
+
+    // Step 6: Try to open My Account
+    await homePage.clickMyAccount();
+
+
+    // Step 7: User should be redirected to Login page
+    await expect(page)
+        .toHaveURL(/route=account\/login/);
 
 });
