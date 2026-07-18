@@ -136,3 +136,36 @@ test('Validate E-Mail Address and Password fields have the correct placeholder t
 
   await loginPage.expectPlaceholders();
 });
+
+test('Validate Logging into the Application and browsing back using Browser Back button @master @regression', async ({ page }) => {
+
+    // Step 1: Navigate to Login page
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    // Step 2: Login with valid credentials
+    await loginPage.login(config.email, config.password);
+
+    // Step 3: Verify successful login
+    expect(await myAccountPage.isMyAccountPageExists()).toBeTruthy();
+
+    // Step 4: Click browser Back button
+    await loginPage.goBack();
+
+    // Step 5: Verify user is redirected to Login page
+    await expect(page).toHaveURL(/route=account\/login/);
+
+    // Step 6: Verify session expired message
+    const errorMessage = await loginPage.getLoginErrorMessage();
+
+    expect(errorMessage).toContain(
+        'Warning: Invalid token session. Please login again!'
+    );
+
+    // Step 7: Login again
+    await loginPage.login(config.email, config.password);
+
+    // Step 8: Verify user can access My Account again
+    expect(await myAccountPage.isMyAccountPageExists()).toBeTruthy();
+
+});

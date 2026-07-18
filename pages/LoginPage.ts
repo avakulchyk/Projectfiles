@@ -1,93 +1,175 @@
 import { expect, Page, Locator } from '@playwright/test';
 
 export class LoginPage {
-    expectWarningMessage(arg0: string) {
-      throw new Error('Method not implemented.');
-    }
+
     private readonly page: Page;
-    
+
+    // ======================
     // Locators
+    // ======================
+
     private readonly txtEmailAddress: Locator;
     private readonly txtPassword: Locator;
     private readonly btnLogin: Locator;
     private readonly txtErrorMessage: Locator;
     private readonly lnkForgottenPassword: Locator;
-    
+
 
     constructor(page: Page) {
+
         this.page = page;
-        
-        // Initialize locators with CSS selectors
+
+        // Login form fields
         this.txtEmailAddress = page.locator('#input-email');
         this.txtPassword = page.locator('#input-password');
-        this.btnLogin = page.locator("button[class='btn btn-primary']");
-        this.txtErrorMessage=page.locator('.alert.alert-danger.alert-dismissible');
 
-          // Forgotten Password link
-       this.lnkForgottenPassword = page.locator("#form-login div[class='mb-3'] a");
+        // Login button
+        this.btnLogin = page.locator("button[class='btn btn-primary']");
+
+        // Error / warning messages
+        this.txtErrorMessage = page.locator(
+            '.alert.alert-danger.alert-dismissible'
+        );
+
+        // Forgotten password link
+        this.lnkForgottenPassword = page.locator(
+            "#form-login div[class='mb-3'] a"
+        );
     }
-    
-    async waitForPageLoad() {
-        await this.txtEmailAddress.waitFor({ state: 'visible' });
-        await this.txtPassword.waitFor({ state: 'visible' });
-        await this.btnLogin.waitFor({ state: 'visible' });
-    }
+
+
+    // ======================
+    // Actions
+    // ======================
+
 
     /**
-     * Sets the email address in the email field
-     * @param email - Email address to enter
+     * Enter email address
      */
-    async setEmail(email: string){
+    async setEmail(email: string): Promise<void> {
         await this.txtEmailAddress.fill(email);
     }
 
-    /**
-     * Sets the password in the password field
-     * @param pwd - Password to enter
-     */
-    async setPassword(pwd: string) {
-        await this.txtPassword.fill(pwd);
-    }
 
     /**
-     * Clicks the login button
+     * Enter password
      */
-    async clickLogin(): Promise<void>{
+    async setPassword(password: string): Promise<void> {
+        await this.txtPassword.fill(password);
+    }
+
+
+    /**
+     * Click Login button
+     */
+    async clickLogin(): Promise<void> {
         await this.btnLogin.click();
     }
-    async clickForgottenPassword(): Promise<void> {
-        await this.lnkForgottenPassword.click();
-    }
 
-    async expectForgottenPasswordLinkVisible(): Promise<void> {
-    await expect (this.lnkForgottenPassword).toBeVisible();
-    }
 
-    async expectPlaceholders(): Promise<void> {
-  await expect(this.txtEmailAddress).toHaveAttribute(
-    'placeholder',
-    'E-Mail Address'
-  );
-
-  await expect(this.txtPassword).toHaveAttribute(
-    'placeholder',
-    'Password'
-  );
-}
     /**
-     * Performs complete login action
-     * @param email - Email address to enter
-     * @param password - Password to enter
+     * Login with credentials
      */
-    async login(email: string, password: string){
+    async login(
+        email: string,
+        password: string
+    ): Promise<void> {
+
         await this.setEmail(email);
         await this.setPassword(password);
         await this.clickLogin();
     }
 
-    async getloginErrorMessage():Promise<null | string>{
-       
-        return(this.txtErrorMessage.textContent());
+
+    /**
+     * Click browser Back button
+     */
+    async goBack(): Promise<void> {
+
+        await this.page.goBack();
+        await this.page.waitForLoadState('networkidle');
     }
-    
+
+
+    /**
+     * Click Forgotten Password link
+     */
+    async clickForgottenPassword(): Promise<void> {
+
+        await this.lnkForgottenPassword.click();
+    }
+
+
+
+    // ======================
+    // Validations
+    // ======================
+
+
+    /**
+     * Verify Forgotten Password link is visible
+     */
+    async expectForgottenPasswordLinkVisible(): Promise<void> {
+
+        await expect(this.lnkForgottenPassword)
+            .toBeVisible();
+    }
+
+
+    /**
+     * Verify placeholders
+     */
+    async expectPlaceholders(): Promise<void> {
+
+        await expect(this.txtEmailAddress)
+            .toHaveAttribute(
+                'placeholder',
+                'E-Mail Address'
+            );
+
+        await expect(this.txtPassword)
+            .toHaveAttribute(
+                'placeholder',
+                'Password'
+            );
+    }
+
+
+    /**
+     * Verify login error message
+     */
+    async expectLoginErrorMessage(): Promise<void> {
+
+        await expect(this.txtErrorMessage)
+            .toContainText(
+                'Warning: No match for E-Mail Address and/or Password.'
+            );
+    }
+
+
+    /**
+     * Verify expired session message after browser back
+     */
+    async expectSessionExpiredMessage(): Promise<void> {
+
+        await expect(this.txtErrorMessage)
+            .toContainText(
+                'Invalid token session. Please login again!'
+            );
+    }
+
+
+
+    // ======================
+    // Getters
+    // ======================
+
+
+    /**
+     * Get login error message text
+     */
+    async getLoginErrorMessage(): Promise<string | null> {
+
+        return await this.txtErrorMessage.textContent();
+    }
 }
