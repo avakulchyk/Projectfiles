@@ -61,6 +61,18 @@ export class LoginPage {
 
     async expectForgottenPasswordLinkVisible(): Promise<void> {
     await expect (this.lnkForgottenPassword).toBeVisible();
+    }
+
+    async expectPlaceholders(): Promise<void> {
+  await expect(this.txtEmailAddress).toHaveAttribute(
+    'placeholder',
+    'E-Mail Address'
+  );
+
+  await expect(this.txtPassword).toHaveAttribute(
+    'placeholder',
+    'Password'
+  );
 }
     /**
      * Performs complete login action

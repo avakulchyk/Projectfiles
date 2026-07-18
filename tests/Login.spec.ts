@@ -129,3 +129,10 @@ test("Validate 'Forgotten Password' link is available in the Login page and is w
     // Verify user is redirected to Forgotten Password page
     await expect(page).toHaveURL(/route=account\/forgotten/);
 });
+
+test('Validate E-Mail Address and Password fields have the correct placeholder text @master @regression', async () => {
+  await homePage.clickMyAccount();
+  await homePage.clickLogin();
+
+  await loginPage.expectPlaceholders();
+});
