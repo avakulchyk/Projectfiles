@@ -241,7 +241,7 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 
 test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
 
-    const newPassword = 'NewPassword@12345';
+    const newPassword = 'NewPassword@123456';
 
 
     // Step 1-5: Login with current credentials
@@ -315,5 +315,19 @@ test('Validate logging into the application after changing the password @master 
     expect(
         await myAccountPage.isMyAccountPageExists()
     ).toBeTruthy();
+
+});
+
+test('Validate password field hides entered text @master @sanity @regression', async ({ page }) => {
+
+    // Navigate to Login page via Home page
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    // Enter password into Password field
+    await loginPage.setPassword(config.password);
+
+    // Verify password field hides entered text
+    await loginPage.expectPasswordFieldMasked();
 
 });
