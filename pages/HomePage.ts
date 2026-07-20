@@ -1,11 +1,9 @@
-import { Page, expect, Locator } from '@playwright/test';
+import { Page, Locator } from '@playwright/test';
 
 export class HomePage {
-    clickLogout() {
-      throw new Error('Method not implemented.');
-    }
+
     private readonly page: Page;
-    
+
     // Locators
     private readonly lnkMyAccount: Locator;
     private readonly lnkRegister: Locator;
@@ -13,74 +11,71 @@ export class HomePage {
     private readonly txtSearchbox: Locator;
     private readonly btnSearch: Locator;
 
+
     constructor(page: Page) {
+
         this.page = page;
-        
-        // Initialize locators
-        this.lnkMyAccount = page.locator('span:has-text("My Account")');
-        this.lnkRegister = page.locator('a:has-text("Register")');
-        this.linkLogin = page.locator('a:has-text("Login")');
-        this.txtSearchbox = page.locator('input[placeholder="Search"]');
-        this.btnSearch = page.locator("button[class='btn btn-light btn-lg']");
+
+        // My Account dropdown
+        this.lnkMyAccount = page.locator(
+            'span:has-text("My Account")'
+        );
+
+        // Register link
+        this.lnkRegister = page.locator(
+            'a[href*="route=account/register"]'
+        );
+
+        // Login link from My Account dropdown
+        this.linkLogin = page.locator(
+            '#top a.dropdown-item[href*="route=account/login"]'
+        );
+
+        // Search field
+        this.txtSearchbox = page.locator(
+            'input[placeholder="Search"]'
+        );
+
+        // Search button
+        this.btnSearch = page.locator(
+            'button.btn.btn-light.btn-lg'
+        );
     }
 
-    // Check if HomePage exists
-    async isHomePageExists(){
-        let title:string = await this.page.title();
-        if(title)
-        {
-            return true;
-        }
-        return false;
+
+    async isHomePageExists(): Promise<boolean> {
+
+        return await this.page.title()
+            .then(title => title.length > 0);
     }
 
-    // Click "My Account" link
-    async clickMyAccount(){
-        try {
-            await this.lnkMyAccount.click();
-        } catch (error) {
-            console.log(`Exception occurred while clicking 'My Account': ${error}`);
-            throw error;
-        }
+
+    async clickMyAccount(): Promise<void> {
+
+        await this.lnkMyAccount.click();
     }
 
-    // Click "Register" link
-    async clickRegister(){
-        try {
-            await this.lnkRegister.click();
-        } catch (error) {
-            console.log(`Exception occurred while clicking 'Register': ${error}`);
-            throw error;
-        }
+
+    async clickRegister(): Promise<void> {
+
+        await this.lnkRegister.click();
     }
 
-    // Click "Login" link
-    async clickLogin(){
-        try {
-            await this.linkLogin.click();
-        } catch (error) {
-            console.log(`Exception occurred while clicking 'Login': ${error}`);
-            throw error;
-        }
+
+    async clickLogin(): Promise<void> {
+
+        await this.linkLogin.click();
     }
 
-    // Enter product name in the search box
-    async enterProductName(pName: string){
-        try {
-            await this.txtSearchbox.fill(pName);
-        } catch (error) {
-            console.log(`Exception occurred while entering product name: ${error}`);
-            throw error;
-        }
+
+    async enterProductName(pName: string): Promise<void> {
+
+        await this.txtSearchbox.fill(pName);
     }
 
-    // Click the search button
-    async clickSearch(){
-        try {
-            await this.btnSearch.click();
-        } catch (error) {
-            console.log(`Exception occurred while clicking 'Search': ${error}`);
-            throw error;
-        }
+
+    async clickSearch(): Promise<void> {
+
+        await this.btnSearch.click();
     }
 }

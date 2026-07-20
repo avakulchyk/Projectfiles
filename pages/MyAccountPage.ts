@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { LogoutPage } from './LogoutPage';
+import { ChangePasswordPage } from './ChangePasswordPage';
 
 export class MyAccountPage {
 
@@ -7,6 +8,7 @@ export class MyAccountPage {
 
     private readonly msgHeading: Locator;
     private readonly lnkLogout: Locator;
+    private readonly lnkChangePassword: Locator;
 
 
     constructor(page: Page) {
@@ -21,6 +23,11 @@ export class MyAccountPage {
         // Sidebar Logout link
         this.lnkLogout = page.locator(
             "a.list-group-item[href*='route=account/logout']"
+        );
+
+        // Change Password link
+        this.lnkChangePassword = page.locator(
+            "a.list-group-item[href*='route=account/password']"
         );
     }
 
@@ -38,13 +45,30 @@ export class MyAccountPage {
     }
 
 
+    async expectChangePasswordLinkVisible(): Promise<void> {
+
+        await expect(this.lnkChangePassword)
+            .toBeVisible();
+    }
+
+
+    async clickChangePassword(): Promise<ChangePasswordPage> {
+
+        await this.lnkChangePassword.click();
+
+        await expect(this.page)
+            .toHaveURL(/route=account\/password/);
+
+        return new ChangePasswordPage(this.page);
+    }
+
+
     async clickLogout(): Promise<LogoutPage> {
 
         await this.lnkLogout.click();
 
-        await this.page.waitForLoadState(
-            'networkidle'
-        );
+        await expect(this.page)
+            .toHaveURL(/route=account\/logout/);
 
         return new LogoutPage(this.page);
     }

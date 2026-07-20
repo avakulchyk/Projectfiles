@@ -165,7 +165,7 @@ export class LoginPage {
     /**
      * Verify invalid credentials error
      */
-    async expectLoginErrorMessage(): Promise<void> {
+    async expectLoginErrorMessage(p0: string): Promise<void> {
 
         await expect(this.txtErrorMessage)
             .toContainText(

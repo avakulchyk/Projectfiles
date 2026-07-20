@@ -238,3 +238,82 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
         }
     }
 });
+
+test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
+
+    const newPassword = 'NewPassword@12345';
+
+
+    // Step 1-5: Login with current credentials
+    await homePage.clickMyAccount();
+
+    await homePage.clickLogin();
+
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
+
+    // Verify successful login
+    await expect(page)
+        .toHaveURL(/route=account\/account/);
+
+    expect(
+        await myAccountPage.isMyAccountPageExists()
+    ).toBeTruthy();
+
+
+
+    // Step 6: Open Change Password page
+    const changePasswordPage =
+        await myAccountPage.clickChangePassword();
+
+
+    // Verify Change Password page is displayed
+    await changePasswordPage.expectChangePasswordPage();
+
+
+
+    // Step 7-8: Change password
+    await changePasswordPage.changePassword(
+        newPassword
+    );
+
+
+
+    // Step 9: Logout
+    await homePage.clickMyAccount();
+
+    const logoutPage =
+        await myAccountPage.clickLogout();
+
+
+    await logoutPage.expectLogoutPage();
+
+
+
+    // Step 10: Navigate to Login page again
+    await homePage.clickMyAccount();
+
+    await homePage.clickLogin();
+
+
+
+    // Step 11: Login with the new password
+    await loginPage.login(
+        config.email,
+        newPassword
+    );
+
+
+
+    // Verify login with updated password
+    await expect(page)
+        .toHaveURL(/route=account\/account/);
+
+    expect(
+        await myAccountPage.isMyAccountPageExists()
+    ).toBeTruthy();
+
+});
