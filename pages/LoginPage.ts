@@ -1,9 +1,6 @@
 import { expect, Page, Locator } from '@playwright/test';
 
 export class LoginPage {
-    passwordField(passwordField: any) {
-        throw new Error('Method not implemented.');
-    }
 
     private readonly page: Page;
 
@@ -74,20 +71,6 @@ export class LoginPage {
 
 
     /**
-     * Verify password field is masked
-     */
-    async expectPasswordFieldMasked(): Promise<void> {
-
-        await expect(this.txtPassword)
-            .toHaveAttribute(
-                'type',
-                'password'
-            );
-    }
-
-
-
-    /**
      * Click Login button
      */
     async clickLogin(): Promise<void> {
@@ -145,6 +128,31 @@ export class LoginPage {
     // ======================
     // Validations
     // ======================
+
+
+    /**
+     * Verify Login button is visible
+     */
+    async expectLoginButtonVisible(): Promise<void> {
+
+        await expect(this.btnLogin)
+            .toBeVisible();
+    }
+
+
+
+    /**
+     * Verify password field is masked
+     */
+    async expectPasswordFieldMasked(): Promise<void> {
+
+        await expect(this.txtPassword)
+            .toHaveAttribute(
+                'type',
+                'password'
+            );
+    }
+
 
 
     /**

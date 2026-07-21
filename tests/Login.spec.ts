@@ -332,38 +332,84 @@ test('Validate password field hides entered text @master @sanity @regression', a
 
 });
 
-test('Validate user remains logged in after closing browser tab without logging out @regression', async ({ page, context }) => {
+test('Validate timeout of the Login Session @regression', async ({ page }) => {
 
-    // Step 1: Navigate to Login page
-    homePage = new HomePage(page);
-    loginPage = new LoginPage(page);
-    myAccountPage = new MyAccountPage(page);
+    test.setTimeout(35 * 60 * 1000);
 
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    // Step 2: Login with valid credentials
-    await loginPage.login(config.email, config.password);
+    await loginPage.login(
+        config.email,
+        config.password
+    );
 
-    // Step 3: Verify successful login
     await expect(page)
         .toHaveURL(/route=account\/account/);
 
-    expect(await myAccountPage.isMyAccountPageExists())
-        .toBeTruthy();
 
-    // Step 4: Close current tab without logging out
-    await page.close();
+    console.log('User logged in. Waiting for session expiration...');
 
-    // Step 5: Open a new tab in the same browser context
-    const newPage = await context.newPage();
 
-    await newPage.goto(config.appUrl);
+    // PHP session timeout = 24 minutes
+    await page.waitForTimeout(25 * 60 * 1000);
 
-    // Step 6: Reinitialize Page Objects with new page
-    homePage = new HomePage(newPage);
-    myAccountPage = new MyAccountPage(newPage);
 
-    // Step 7: Verify user session is preserved
-    await homePage.expectUserLoggedIn();
+    console.log('Timeout finished. Refreshing page...');
+
+
+    await page.reload();
+
+
+    // Give page time to redirect if session expired
+    await page.waitForLoadState('networkidle');
+
+
+    await expect(page)
+        .toHaveURL(/route=account\/login/, {
+            timeout: 10000
+        });
+
+
+    await loginPage.expectLoginButtonVisible();
+
+});
+
+test('Validate timeout of the Login Session by clearing cookies @regression', async ({ page }) => {
+
+    // Step 1: Login
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
+    // Verify successful login
+    await expect(page)
+        .toHaveURL(/route=account\/account/);
+
+
+    console.log('User logged in. Simulating session expiration...');
+
+
+    // Step 2: Simulate expired session
+    await page.context().clearCookies();
+
+
+    // Step 3: Refresh page
+    await page.reload();
+
+    await page.waitForLoadState('networkidle');
+
+
+    // Step 4: Verify user is redirected to Login page
+    await expect(page)
+        .toHaveURL(/route=account\/login/);
+
+
+    // Step 5: Verify login page is displayed
+    await loginPage.expectLoginButtonVisible();
+
 });
