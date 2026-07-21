@@ -1,16 +1,19 @@
-import { Page, Locator } from '@playwright/test';
+import { Page, Locator, expect } from '@playwright/test';
 
 export class HomePage {
 
     private readonly page: Page;
 
+    // ======================
     // Locators
+    // ======================
+
     private readonly lnkMyAccount: Locator;
     private readonly lnkRegister: Locator;
-    private readonly linkLogin: Locator;
+    private readonly lnkLogin: Locator;
+    private readonly lnkLogout: Locator;
     private readonly txtSearchbox: Locator;
     private readonly btnSearch: Locator;
-
 
     constructor(page: Page) {
 
@@ -26,9 +29,14 @@ export class HomePage {
             'a[href*="route=account/register"]'
         );
 
-        // Login link from My Account dropdown
-        this.linkLogin = page.locator(
+        // Login link
+        this.lnkLogin = page.locator(
             '#top a.dropdown-item[href*="route=account/login"]'
+        );
+
+        // Logout link
+        this.lnkLogout = page.locator(
+            '#top a.dropdown-item[href*="route=account/logout"]'
         );
 
         // Search field
@@ -42,40 +50,56 @@ export class HomePage {
         );
     }
 
+    // ======================
+    // Actions
+    // ======================
 
     async isHomePageExists(): Promise<boolean> {
 
-        return await this.page.title()
-            .then(title => title.length > 0);
+        return (await this.page.title()).length > 0;
     }
-
 
     async clickMyAccount(): Promise<void> {
 
         await this.lnkMyAccount.click();
     }
 
-
     async clickRegister(): Promise<void> {
 
         await this.lnkRegister.click();
     }
 
-
     async clickLogin(): Promise<void> {
 
-        await this.linkLogin.click();
+        await this.lnkLogin.click();
     }
 
+    async enterProductName(productName: string): Promise<void> {
 
-    async enterProductName(pName: string): Promise<void> {
-
-        await this.txtSearchbox.fill(pName);
+        await this.txtSearchbox.fill(productName);
     }
-
 
     async clickSearch(): Promise<void> {
 
         await this.btnSearch.click();
+    }
+
+    // ======================
+    // Verifications
+    // ======================
+
+    async isUserLoggedIn(): Promise<boolean> {
+
+        await this.clickMyAccount();
+
+        return await this.lnkLogout.isVisible();
+    }
+
+    async expectUserLoggedIn(): Promise<void> {
+
+        await this.clickMyAccount();
+
+        await expect(this.lnkLogout)
+            .toBeVisible();
     }
 }

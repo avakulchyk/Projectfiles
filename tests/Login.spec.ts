@@ -331,3 +331,39 @@ test('Validate password field hides entered text @master @sanity @regression', a
     await loginPage.expectPasswordFieldMasked();
 
 });
+
+test('Validate user remains logged in after closing browser tab without logging out @regression', async ({ page, context }) => {
+
+    // Step 1: Navigate to Login page
+    homePage = new HomePage(page);
+    loginPage = new LoginPage(page);
+    myAccountPage = new MyAccountPage(page);
+
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    // Step 2: Login with valid credentials
+    await loginPage.login(config.email, config.password);
+
+    // Step 3: Verify successful login
+    await expect(page)
+        .toHaveURL(/route=account\/account/);
+
+    expect(await myAccountPage.isMyAccountPageExists())
+        .toBeTruthy();
+
+    // Step 4: Close current tab without logging out
+    await page.close();
+
+    // Step 5: Open a new tab in the same browser context
+    const newPage = await context.newPage();
+
+    await newPage.goto(config.appUrl);
+
+    // Step 6: Reinitialize Page Objects with new page
+    homePage = new HomePage(newPage);
+    myAccountPage = new MyAccountPage(newPage);
+
+    // Step 7: Verify user session is preserved
+    await homePage.expectUserLoggedIn();
+});
