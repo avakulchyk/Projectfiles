@@ -2,7 +2,7 @@
   {
     "testName": "Valid login",
     "email": "vakulchykanastasiia@gmail.com",
-    "password": "Ereleth22",
+    "password": "NewPassword@1234567",
     "expected": "success"
   },
   {

@@ -1,19 +1,20 @@
 import { test, expect } from '@playwright/test';
 import { OpenCartPage } from '../pages/opencart-page';
+import { Logger } from '../utils/Logger';
 
 test('OpenCart page title and basic elements', async ({ page }) => {
   const openCartPage = new OpenCartPage(page);
   
-  // Navigate to OpenCart
+  Logger.info('Navigating to OpenCart home page');
   await openCartPage.navigate();
   
-  // Check page title
+  Logger.info('Verifying page title');
   await expect(page).toHaveTitle('Your Store');
   
-  // Check URL
+  Logger.info('Verifying page URL');
   expect(await openCartPage.getUrl()).toBe('http://localhost/opencart/upload/');
   
-  // Check for navigation elements visibility
+  Logger.info('Checking visibility of header navigation elements (Contact, My Account, Wish List)');
   await expect(openCartPage.contactLink).toBeVisible();
   await expect(openCartPage.myAccountLink).toBeVisible();
   await expect(openCartPage.wishListLink).toBeVisible();
@@ -22,31 +23,32 @@ test('OpenCart page title and basic elements', async ({ page }) => {
 test('Click contact link and verify navigation', async ({ page }) => {
   const openCartPage = new OpenCartPage(page);
   
+  Logger.info('Navigating to OpenCart home page');
   await openCartPage.navigate();
   
-  // Click the contact link and wait for navigation
+  Logger.info('Clicking Contact Us link and waiting for navigation');
   const navigationPromise = page.waitForNavigation();
   await openCartPage.clickContactLink();
   await navigationPromise.catch(() => {}); // Ignore navigation errors
   
-  // Check that we're on contact page
+  Logger.info('Verifying URL redirection to Contact Us page');
   expect(page.url()).toContain('information/contact');
 });
 
 test('Click Wish List link and verify navigation', async ({ page }) => {
   const openCartPage = new OpenCartPage(page);
   
+  Logger.info('Navigating to OpenCart home page');
   await openCartPage.navigate();
   
-  // Click the wish list link and wait for navigation
+  Logger.info('Clicking Wish List link and waiting for navigation');
   const navigationPromise = page.waitForNavigation();
   await openCartPage.clickWishListLink();
   await navigationPromise.catch(() => {}); // Ignore navigation errors
   
-  // Check that we're on wish list page (or login page if not authenticated)
+  Logger.info('Verifying URL redirection to Wish List or Login page');
   const url = page.url();
   expect(
     url.includes('account/wishlist') || url.includes('account/login')
   ).toBeTruthy();
 });
-

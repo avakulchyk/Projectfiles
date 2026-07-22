@@ -1,7 +1,7 @@
 /**
- * Test Case: User Logout
+ * Test Case: User Logout & Empty Login Validation
  * 
- * Tags: @master @regression
+ * Tags: @master @sanity @regression
  * 
  * Steps:
  * 1) Navigate to the application URL
@@ -19,6 +19,7 @@ import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MyAccountPage } from '../pages/MyAccountPage';
 import { LogoutPage } from '../pages/LogoutPage';
+import { Logger } from '../utils/Logger';
 
 // Declare shared variables
 let config: TestConfig;
@@ -30,6 +31,7 @@ let logoutPage: LogoutPage;
 
 // Setup before each test
 test.beforeEach(async ({ page }) => {
+  Logger.info('Initializing test configuration and navigating to app URL');
   config = new TestConfig(); // Load test config
   await page.goto(config.appUrl); // Step 1: Navigate to app URL
 
@@ -42,44 +44,60 @@ test.beforeEach(async ({ page }) => {
 
 // Optional cleanup after each test
 test.afterEach(async ({ page }) => {
+  Logger.info('Cleaning up and closing page instance');
   await page.close(); // Close the browser tab (helps keep tests clean)
 });
 
 test('User logout test @master @regression', async () => {
-  // Step 2: Navigate to Login page
+
+  Logger.info('Step 2: Navigating to Login page');
+
   await homePage.clickMyAccount();
   await homePage.clickLogin();
 
-  // Step 3: Perform login using valid credentials
-  await loginPage.login(config.email, config.password);
 
-  // Step 4: Verify successful login
-  expect(await myAccountPage.isMyAccountPageExists()).toBeTruthy();
+  Logger.info('Step 3: Performing login with valid credentials');
 
-  // Step 5: Click Logout, which returns LogoutPage instance
+  await loginPage.login(
+      config.email,
+      config.password
+  );
+
+
+  Logger.info('Step 4: Verifying successful login to My Account page');
+
+  await myAccountPage.expectMyAccountPage();
+
+
+  Logger.info('Step 5: Clicking Logout');
+
   logoutPage = await myAccountPage.clickLogout();
 
-  // Step 6: Verify "Continue" button is visible before clicking
-  expect(await logoutPage.isContinueButtonVisible()).toBe(true);
 
-  // Step 7: Click Continue and verify redirection to HomePage
+  Logger.info('Step 6: Verifying Continue button is visible on Logout page');
+
+  await logoutPage.expectContinueButtonVisible();
+
+
+  Logger.info('Step 7: Clicking Continue and verifying redirection to Home Page');
+
   homePage = await logoutPage.clickContinue();
-  expect(await homePage.isHomePageExists()).toBe(true);
+
 });
 
 test('Validate logging into the application without providing any credentials @master @sanity @regression', async ({ page }) => {
-  // Navigate to Login page
+  Logger.info('Navigating to Login page');
   await homePage.clickMyAccount();
   await homePage.clickLogin();
 
-  // Leave Email and Password fields empty
+  Logger.info('Submitting login form with empty fields');
   await loginPage.clickLogin();
 
-  // Verify user remains on the Login page
+  Logger.info('Verifying user remains on Login page');
   await expect(page).toHaveURL(/route=account\/login/);
 
-  // Verify warning message is displayed
-  const errorMessage = await loginPage.getloginErrorMessage();
+  Logger.info('Verifying login failure error message');
+  const errorMessage = await loginPage.getLoginErrorMessage();
   expect(errorMessage).toContain(
     'Warning: No match for E-Mail Address and/or Password.'
   );

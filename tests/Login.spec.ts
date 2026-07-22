@@ -64,7 +64,7 @@ test('User login test @master @sanity @regression', async ({ page }) => {
 
 // Invalid credentials
 
-test('Validate logging into the application using a valid email address and an invalid password @master @regression', async ({ page }) => {
+test('Validate logging into the application using a valid email and invalid password (duplicate) @master @regression', async ({ page }) => {
     Logger.info('Navigating to Login Page');
     await homePage.clickMyAccount();
     await homePage.clickLogin();

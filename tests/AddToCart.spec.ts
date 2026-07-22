@@ -19,6 +19,7 @@ import { TestConfig } from '../test.config';
 import { HomePage } from '../pages/HomePage';
 import { SearchResultsPage } from '../pages/SearchResultsPage';
 import { ProductPage } from '../pages/ProductPage';
+import { Logger } from '../utils/Logger';
 
 // Shared instances
 let config: TestConfig;
@@ -27,41 +28,42 @@ let searchResultsPage: SearchResultsPage;
 let productPage: ProductPage;
 
 test.beforeEach(async ({ page }) => {
+  Logger.info('Initializing test configuration and navigating to app URL');
   config = new TestConfig(); // Load test configuration
   await page.goto(config.appUrl); // Step 1: Open application URL
 
   // Initialize page objects
   homePage = new HomePage(page);
   searchResultsPage = new SearchResultsPage(page);
-  productPage=new ProductPage(page);
+  productPage = new ProductPage(page);
 });
 
 test.afterEach(async ({ page }) => {
+  Logger.info('Cleaning up and closing page instance');
   await page.close(); // Optional cleanup
 });
 
 test('Add product to cart test @master @regression', async ({ page }) => {
-  // Step 2: Enter product name in search box
-  await homePage.enterProductName(config.productName);
+  const productName = config.productName;
+  const quantity = config.productQuantity;
 
-  // Step 3: Click the search button
+  Logger.info(`Step 2 & 3: Entering product name "${productName}" in search box and clicking Search`);
+  await homePage.enterProductName(productName);
   await homePage.clickSearch();
 
-  // Step 4: Verify search results page is displayed
+  Logger.info('Step 4: Verifying Search Results page is displayed');
   expect(await searchResultsPage.isSearchResultsPageExists()).toBeTruthy();
 
-  // Step 5: Verify that the product exists in the results
-  const productName = config.productName;
+  Logger.info(`Step 5: Verifying product "${productName}" exists in search results`);
   expect(await searchResultsPage.isProductExist(productName)).toBeTruthy();
 
-  // Step 6-7-8: Select product → Set quantity → Add to cart → Verify confirmation
   if (await searchResultsPage.isProductExist(productName)) {
-    //productPage = await searchResultsPage.selectProduct(productName);
+    Logger.info(`Step 6 & 7: Selecting product "${productName}", setting quantity to ${quantity}, and adding to cart`);
     await searchResultsPage.selectProduct(productName);
-    await productPage.setQuantity(config.productQuantity); // Set quantity
-    await productPage.addToCart();                         // Add to cart
+    await productPage.setQuantity(quantity); // Set quantity
+    await productPage.addToCart();           // Add to cart
 
-    // Step 8: Assert success message is visible
+    Logger.info('Step 8: Asserting success confirmation message is visible');
     expect(await productPage.isConfirmationMessageVisible()).toBeTruthy();
   }
 });
