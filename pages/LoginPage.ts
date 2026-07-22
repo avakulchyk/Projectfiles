@@ -32,9 +32,7 @@ export class LoginPage {
 
 
         // Error / warning messages
-        this.txtErrorMessage = page.locator(
-            '.alert.alert-danger.alert-dismissible'
-        );
+        this.txtErrorMessage = page.locator('.alert.alert-danger');
 
 
         // Forgotten password link

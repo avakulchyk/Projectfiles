@@ -7,7 +7,7 @@ export class TestConfig{
   
     //valid login credentials
     email="vakulchykanastasiia@gmail.com"
-    password="NewPassword@12345"
+    password="NewPassword@1234567"
 
     //product details
     productName="MacBook"
