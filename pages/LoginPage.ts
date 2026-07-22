@@ -31,8 +31,10 @@ export class LoginPage {
         );
 
 
-        // Error / warning messages
-        this.txtErrorMessage = page.locator('.alert.alert-danger');
+        // Error messages
+        this.txtErrorMessage = page.locator(
+            '.alert.alert-danger'
+        );
 
 
         // Forgotten password link
@@ -110,7 +112,7 @@ export class LoginPage {
 
 
     /**
-     * Browser Back button
+     * Navigate back using browser back button
      */
     async goBack(): Promise<void> {
 
@@ -126,6 +128,17 @@ export class LoginPage {
     // ======================
     // Validations
     // ======================
+
+
+    /**
+     * Verify Login page is opened
+     */
+    async expectLoginPage(): Promise<void> {
+
+        await expect(this.page)
+            .toHaveURL(/route=account\/login/);
+    }
+
 
 
     /**
@@ -186,20 +199,20 @@ export class LoginPage {
 
 
     /**
-     * Verify invalid credentials error
+     * Verify login error message
      */
-    async expectLoginErrorMessage(p0: string): Promise<void> {
+    async expectLoginErrorMessage(
+        message: string
+    ): Promise<void> {
 
         await expect(this.txtErrorMessage)
-            .toContainText(
-                'Warning: No match for E-Mail Address and/or Password.'
-            );
+            .toContainText(message);
     }
 
 
 
     /**
-     * Verify expired session message after browser back
+     * Verify expired session message
      */
     async expectSessionExpiredMessage(): Promise<void> {
 
@@ -217,7 +230,7 @@ export class LoginPage {
 
 
     /**
-     * Get error message text
+     * Get login error message text
      */
     async getLoginErrorMessage(): Promise<string | null> {
 

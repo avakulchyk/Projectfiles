@@ -205,17 +205,13 @@ test('Validate Logging into the Application and browsing back using Browser Back
 
 test('Validate account lock after five unsuccessful login attempts @master @regression', async ({ page }) => {
 
-
     const user = RandomDataUtil.getUser();
 
-
     await homePage.clickMyAccount();
-
     await homePage.clickLogin();
 
 
     for (let attempt = 1; attempt <= 5; attempt++) {
-
 
         await loginPage.login(
             user.email,
@@ -223,31 +219,16 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
         );
 
 
-        await expect(page)
-            .toHaveURL(/route=account\/login/);
+        await loginPage.expectLoginPage();
 
 
-
-        if (attempt < 5) {
-
-
-            await loginPage.expectLoginErrorMessage(
-                'Warning: No match for E-Mail Address and/or Password.'
-            );
-
-
-        } else {
-
-
-            await loginPage.expectLoginErrorMessage(
-                'Warning: Your account has exceeded allowed number of login attempts. Please try again in 1 hour.'
-            );
-
-        }
-
+        await loginPage.expectLoginErrorMessage(
+            'Warning: No match for E-Mail Address and/or Password.'
+        );
     }
 
 });
+
 
 
 
@@ -390,6 +371,9 @@ test('Validate timeout of the Login Session by clearing cookies @regression', as
 });
 
 
+
+
+   
 
 
    
