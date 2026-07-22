@@ -15,6 +15,7 @@ export class HomePage {
     private readonly txtSearchbox: Locator;
     private readonly btnSearch: Locator;
 
+
     constructor(page: Page) {
 
         this.page = page;
@@ -29,12 +30,12 @@ export class HomePage {
             'a[href*="route=account/register"]'
         );
 
-        // Login link
+        // Login option from My Account dropdown
         this.lnkLogin = page.locator(
             '#top a.dropdown-item[href*="route=account/login"]'
         );
 
-        // Logout link
+        // Logout option from My Account dropdown
         this.lnkLogout = page.locator(
             '#top a.dropdown-item[href*="route=account/logout"]'
         );
@@ -50,6 +51,7 @@ export class HomePage {
         );
     }
 
+
     // ======================
     // Actions
     // ======================
@@ -59,47 +61,82 @@ export class HomePage {
         return (await this.page.title()).length > 0;
     }
 
+
     async clickMyAccount(): Promise<void> {
 
         await this.lnkMyAccount.click();
     }
+
 
     async clickRegister(): Promise<void> {
 
         await this.lnkRegister.click();
     }
 
+
     async clickLogin(): Promise<void> {
 
         await this.lnkLogin.click();
     }
 
-    async enterProductName(productName: string): Promise<void> {
+
+    async enterProductName(
+        productName: string
+    ): Promise<void> {
 
         await this.txtSearchbox.fill(productName);
     }
+
 
     async clickSearch(): Promise<void> {
 
         await this.btnSearch.click();
     }
 
+
     // ======================
     // Verifications
     // ======================
 
-    async isUserLoggedIn(): Promise<boolean> {
 
-        await this.clickMyAccount();
-
-        return await this.lnkLogout.isVisible();
-    }
-
+    /**
+     * Verify user is logged in
+     * Logout option should be visible
+     */
     async expectUserLoggedIn(): Promise<void> {
 
         await this.clickMyAccount();
 
         await expect(this.lnkLogout)
             .toBeVisible();
+    }
+
+
+    /**
+     * Verify user is logged out
+     * Login option should replace Logout option
+     */
+    async expectLoginOptionVisible(): Promise<void> {
+
+        await this.clickMyAccount();
+
+        await expect(this.lnkLogin)
+            .toBeVisible();
+
+        await expect(this.lnkLogout)
+            .toHaveCount(0);
+    }
+
+
+    /**
+     * Verify Home page is displayed
+     */
+    async expectHomePage(): Promise<void> {
+
+        await expect(this.txtSearchbox)
+            .toBeVisible();
+
+        await expect(this.page)
+            .toHaveURL(/route=common\/home/);
     }
 }

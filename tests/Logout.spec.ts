@@ -85,20 +85,38 @@ test('User logout test @master @regression', async () => {
 
 });
 
-test('Validate logging into the application without providing any credentials @master @sanity @regression', async ({ page }) => {
-  Logger.info('Navigating to Login page');
-  await homePage.clickMyAccount();
-  await homePage.clickLogin();
 
-  Logger.info('Submitting login form with empty fields');
-  await loginPage.clickLogin();
+test("Validate Logging out by selecting Logout option from 'Right Column' options @master @sanity @regression", async () => {
 
-  Logger.info('Verifying user remains on Login page');
-  await expect(page).toHaveURL(/route=account\/login/);
+    Logger.info('Step 1: Login with valid credentials');
 
-  Logger.info('Verifying login failure error message');
-  const errorMessage = await loginPage.getLoginErrorMessage();
-  expect(errorMessage).toContain(
-    'Warning: No match for E-Mail Address and/or Password.'
-  );
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
+
+    Logger.info('Step 2: Logout using My Account menu');
+
+    const logoutPage = await myAccountPage.clickLogout();
+
+
+    Logger.info('Step 3: Verify Account Logout page');
+
+    await logoutPage.expectLogoutPage();
+
+
+    Logger.info('Step 4: Navigate to Home page');
+
+    homePage = await logoutPage.clickContinue();
+
+
+    Logger.info('Step 5: Verify Login option is displayed instead of Logout');
+
+    await homePage.expectLoginOptionVisible();
+
 });
+ 
