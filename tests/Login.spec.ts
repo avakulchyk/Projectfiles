@@ -42,10 +42,10 @@ test.afterEach(async ({ page }) => {
 
 test('User login test @master @sanity @regression', async ({ page }) => {
 
-
     // Navigate to Login page
     await homePage.clickMyAccount();
     await homePage.clickLogin();
+
 
     // Login
     await loginPage.login(
@@ -53,10 +53,12 @@ test('User login test @master @sanity @regression', async ({ page }) => {
         config.password
     );
 
-    // Verify successful login
-    await expect(myAccountPage.pageHeading)
-        .toHaveText('My Account');
 
+    // Verify successful login
+    await myAccountPage.expectMyAccountPage();
+
+
+    // Verify URL
     await expect(page)
         .toHaveURL(/route=account\/account/);
 
