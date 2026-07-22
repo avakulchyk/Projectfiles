@@ -84,7 +84,7 @@ test('Validate logging into the application using a valid email address and an i
 
 // Valid email + invalid password
 
-test('Validate logging into the application using a valid email address and an invalid password @master @regression', async ({ page }) => {
+test('Validate logging into the application using a valid email address and an invalid password - second verification @master @regression', async ({ page }) => {
 
 
     await homePage.clickMyAccount();
@@ -151,7 +151,7 @@ test('Validate Logging into the Application and browsing back using Browser Back
     await myAccountPage.expectMyAccountPage();
 
     Logger.info('Navigating back using browser history');
-    await loginPage.goBack();
+    await page.goBack();
 
     Logger.info('Verifying return to Login page and session expiration warning');
     await expect(page).toHaveURL(/route=account\/login/);

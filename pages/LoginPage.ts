@@ -110,21 +110,6 @@ export class LoginPage {
     }
 
 
-
-    /**
-     * Navigate back using browser back button
-     */
-    async goBack(): Promise<void> {
-
-        await this.page.goBack();
-
-        await this.page.waitForLoadState(
-            'networkidle'
-        );
-    }
-
-
-
     // ======================
     // Validations
     // ======================
