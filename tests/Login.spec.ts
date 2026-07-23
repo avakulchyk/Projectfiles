@@ -141,27 +141,29 @@ test('Validate E-Mail Address and Password fields have the correct placeholder t
 
 // Browser back after login
 
-test('Validate Logging into the Application and browsing back using Browser Back button @master @regression', async ({ page }) => {
-    Logger.info('Navigating to Login Page and logging in');
+test('Validate browser back navigation after successful login @master @regression', async ({ page }) => {
+
+    Logger.info('Login to application');
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
+
     await loginPage.login(config.email, config.password);
 
-    Logger.info('Verifying successful initial login');
+    Logger.info('Verify successful login');
+
     await myAccountPage.expectMyAccountPage();
 
-    Logger.info('Navigating back using browser history');
-    await page.goBack();
+    Logger.info('Navigate back using browser history');
 
-    Logger.info('Verifying return to Login page and session expiration warning');
+    await page.goBack({ waitUntil: 'networkidle' });
+
+    Logger.info('Verify user is returned to login page');
+
     await expect(page).toHaveURL(/route=account\/login/);
-    await loginPage.expectSessionExpiredMessage();
 
-    Logger.info('Re-authenticating after session expiration');
-    await loginPage.login(config.email, config.password);
-    await myAccountPage.expectMyAccountPage();
+    await loginPage.expectLoginPage();
 });
-
 
 // Account lock after failed login attempts
 

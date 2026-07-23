@@ -38,17 +38,12 @@ test.afterEach(async ({ page }) => {
   await page.close(); // Closes the browser tab after test
 });
 
-test('Product search test @master @regression', async () => {
-  const productName = config.productName;
+test('Verify user can search product by name @master @regression', async () => {
 
-  Logger.info(`Step 2 & 3: Entering product name "${productName}" and clicking Search`);
-  await homePage.enterProductName(productName);
-  await homePage.clickSearch();
+    await homePage.enterProductName(config.productName);
+    await homePage.clickSearch();
 
-  Logger.info('Step 4: Verifying Search Results page loaded');
-  expect(await searchResultsPage.isSearchResultsPageExists()).toBeTruthy();
+    await searchResultsPage.expectSearchResultsPage();
+    await searchResultsPage.expectProductExists(config.productName);
 
-  Logger.info(`Step 5: Validating if product "${productName}" appears in search results`);
-  const isProductFound = await searchResultsPage.isProductExist(productName);
-  expect(isProductFound).toBeTruthy();
 });
