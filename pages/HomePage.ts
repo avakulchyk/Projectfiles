@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { LoginPage } from './LoginPage';
 
 export class HomePage {
 
@@ -8,90 +9,93 @@ export class HomePage {
     // Locators
     // ======================
 
-    private readonly lnkMyAccount: Locator;
-    private readonly lnkRegister: Locator;
-    private readonly lnkLogin: Locator;
-    private readonly lnkLogout: Locator;
-    private readonly txtSearchbox: Locator;
-    private readonly btnSearch: Locator;
+    private readonly myAccountMenu: Locator;
+    private readonly loginOption: Locator;
+    private readonly registerOption: Locator;
+    private readonly logoutOption: Locator;
+
+    private readonly searchInput: Locator;
+    private readonly searchButton: Locator;
 
 
     constructor(page: Page) {
 
         this.page = page;
 
+
         // My Account dropdown
-        this.lnkMyAccount = page.locator(
+        this.myAccountMenu = page.locator(
             'span:has-text("My Account")'
         );
 
-        // Register link
-        this.lnkRegister = page.locator(
+
+        // Dropdown options
+        this.loginOption = page.locator(
+            'a[href*="route=account/login"]'
+        );
+
+
+        this.registerOption = page.locator(
             'a[href*="route=account/register"]'
         );
 
-        // Login option from My Account dropdown
-        this.lnkLogin = page.locator(
-            '#top a.dropdown-item[href*="route=account/login"]'
+
+        this.logoutOption = page.locator(
+            'a[href*="route=account/logout"]'
         );
 
-        // Logout option from My Account dropdown
-        this.lnkLogout = page.locator(
-            '#top a.dropdown-item[href*="route=account/logout"]'
-        );
 
-        // Search field
-        this.txtSearchbox = page.locator(
+        // Search
+        this.searchInput = page.locator(
             'input[placeholder="Search"]'
         );
 
-        // Search button
-        this.btnSearch = page.locator(
-            'button.btn.btn-light.btn-lg'
+
+        this.searchButton = page.locator(
+            'button[type="submit"]'
         );
     }
+
 
 
     // ======================
     // Actions
     // ======================
 
-    async isHomePageExists(): Promise<boolean> {
-
-        return (await this.page.title()).length > 0;
-    }
-
 
     async clickMyAccount(): Promise<void> {
 
-        await this.lnkMyAccount.click();
+        await this.myAccountMenu.click();
+
+    }
+
+
+    async clickLogin(): Promise<LoginPage> {
+
+        await this.loginOption.click();
+
+        return new LoginPage(this.page);
+
     }
 
 
     async clickRegister(): Promise<void> {
 
-        await this.lnkRegister.click();
+        await this.registerOption.click();
+
     }
 
 
-    async clickLogin(): Promise<void> {
-
-        await this.lnkLogin.click();
-    }
-
-
-    async enterProductName(
+    async searchProduct(
         productName: string
     ): Promise<void> {
 
-        await this.txtSearchbox.fill(productName);
+        await this.searchInput.fill(productName);
+
+        await this.searchButton.click();
+
     }
 
-
-    async clickSearch(): Promise<void> {
-
-        await this.btnSearch.click();
-    }
 
 
     // ======================
@@ -100,43 +104,56 @@ export class HomePage {
 
 
     /**
-     * Verify user is logged in
-     * Logout option should be visible
-     */
-    async expectUserLoggedIn(): Promise<void> {
-
-        await this.clickMyAccount();
-
-        await expect(this.lnkLogout)
-            .toBeVisible();
-    }
-
-
-    /**
-     * Verify user is logged out
-     * Login option should replace Logout option
-     */
-    async expectLoginOptionVisible(): Promise<void> {
-
-        await this.clickMyAccount();
-
-        await expect(this.lnkLogin)
-            .toBeVisible();
-
-        await expect(this.lnkLogout)
-            .toHaveCount(0);
-    }
-
-
-    /**
-     * Verify Home page is displayed
+     * Verify Home page is opened
      */
     async expectHomePage(): Promise<void> {
 
-        await expect(this.txtSearchbox)
+        await expect(this.searchInput)
             .toBeVisible();
 
-        await expect(this.page)
-            .toHaveURL(/route=common\/home/);
     }
+
+
+
+    /**
+     * Verify Logout option is displayed
+     * User is authenticated
+     */
+    async expectLogoutVisible(): Promise<void> {
+
+        await expect(this.logoutOption)
+            .toBeVisible();
+
+    }
+
+
+
+    /**
+     * Verify Logout option is not displayed
+     * Guest user
+     */
+    async expectLogoutNotDisplayed(): Promise<void> {
+
+        await expect(this.logoutOption)
+            .not.toBeVisible();
+
+    }
+
+
+
+    /**
+     * Verify Login option is displayed
+     * User is logged out
+     */
+    async expectLoginOptionVisible(): Promise<void> {
+
+        await expect(this.loginOption)
+            .toBeVisible();
+
+
+        await expect(this.logoutOption)
+            .not.toBeVisible();
+
+    }
+
 }
