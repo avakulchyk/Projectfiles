@@ -97,16 +97,26 @@ async function performRegistration(page: Page): Promise<string> {
 
 // Function to log out the current user
 async function performLogout(page: Page) {
+
     Logger.info('Clicking logout button');
+
     const myAccountPage = new MyAccountPage(page);
-    const logoutPage: LogoutPage = await myAccountPage.clickLogout();
+
+    const logoutPage: LogoutPage =
+        await myAccountPage.clickLogout();
+
 
     Logger.info('Verifying Continue button is visible on Logout page');
-await logoutPage.expectContinueButtonVisible();
+
+    await logoutPage.expectContinueButtonVisible();
+
 
     Logger.info('Clicking Continue and verifying redirection to Home Page');
+
     const homePage = await logoutPage.clickContinue();
-    expect(await homePage.isHomePageExists()).toBe(true);
+
+    await homePage.expectHomePage();
+
 }
 
 
@@ -133,35 +143,56 @@ async function performLogin(page: Page, email: string) {
 
 // Function to search for a product and add it to cart
 async function addProductToCart(page: Page) {
+
     const homePage = new HomePage(page);
 
     const config = new TestConfig();
+
     const productName: string = config.productName;
+
     const productQuantity: string = config.productQuantity;
 
+
     Logger.info(`Searching for product: "${productName}"`);
-    await homePage.enterProductName(productName);
-    await homePage.clickSearch();  // Click on search button
+
+    await homePage.searchProduct(productName);
+
 
     const searchResultsPage = new SearchResultsPage(page);
 
-    Logger.info('Verifying search results page and product presence');
-    expect(await searchResultsPage.isSearchResultsPageExists()).toBeTruthy();
-    expect(await searchResultsPage.isProductExist(productName)).toBeTruthy();
 
-    Logger.info(`Selecting product "${productName}" and setting quantity to ${productQuantity}`);
-    const productPage = await searchResultsPage.selectProduct(productName);
-    await productPage?.setQuantity(productQuantity);
+    Logger.info('Verifying search results page and product presence');
+
+    await searchResultsPage.expectSearchResultsPage();
+
+    await searchResultsPage.expectProductExists(productName);
+
+
+
+    Logger.info(
+        `Selecting product "${productName}" and setting quantity to ${productQuantity}`
+    );
+
+
+    const productPage =
+        await searchResultsPage.selectProduct(productName);
+
+
+    await productPage.setQuantity(productQuantity);
+
 
     Logger.info('Adding product to cart');
-    await productPage?.addToCart();  // Add product to shopping cart
 
-    await page.waitForTimeout(3000); // Wait to simulate user delay
+    await productPage.addToCart();
+
+
 
     Logger.info('Verifying product addition confirmation message');
-    expect(await productPage?.isConfirmationMessageVisible()).toBe(true);
-}
 
+    expect(await productPage.isConfirmationMessageVisible())
+        .toBe(true);
+
+}
 
 // Function to verify the shopping cart details
 async function verifyShoppingCart(page: Page) {

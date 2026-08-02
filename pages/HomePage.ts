@@ -22,46 +22,38 @@ export class HomePage {
 
         this.page = page;
 
-
         // My Account dropdown
         this.myAccountMenu = page.locator(
             'span:has-text("My Account")'
         );
-
 
         // Dropdown options
         this.loginOption = page.locator(
             'a[href*="route=account/login"]'
         );
 
-
         this.registerOption = page.locator(
             'a[href*="route=account/register"]'
         );
 
-
         this.logoutOption = page.locator(
             'a[href*="route=account/logout"]'
         );
-
 
         // Search
         this.searchInput = page.locator(
             'input[placeholder="Search"]'
         );
 
-
         this.searchButton = page.locator(
-            'button[type="submit"]'
-        );
+    "button[class='btn btn-light btn-lg']"
+);
     }
-
 
 
     // ======================
     // Actions
     // ======================
-
 
     async clickMyAccount(): Promise<void> {
 
@@ -86,22 +78,20 @@ export class HomePage {
     }
 
 
-    async searchProduct(
-        productName: string
-    ): Promise<void> {
+    async searchProduct(productName: string): Promise<void> {
 
         await this.searchInput.fill(productName);
 
         await this.searchButton.click();
 
-    }
+        await this.page.waitForURL(/route=product\/search/);
 
+    }
 
 
     // ======================
     // Verifications
     // ======================
-
 
     /**
      * Verify Home page is opened
@@ -112,7 +102,6 @@ export class HomePage {
             .toBeVisible();
 
     }
-
 
 
     /**
@@ -127,7 +116,6 @@ export class HomePage {
     }
 
 
-
     /**
      * Verify Logout option is not displayed
      * Guest user
@@ -140,7 +128,6 @@ export class HomePage {
     }
 
 
-
     /**
      * Verify Login option is displayed
      * User is logged out
@@ -149,7 +136,6 @@ export class HomePage {
 
         await expect(this.loginOption)
             .toBeVisible();
-
 
         await expect(this.logoutOption)
             .not.toBeVisible();

@@ -200,7 +200,7 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 
 // Change password and login with new password
 test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
-    const newPassword = 'NewPassword@12345678';
+    const newPassword = 'NewPassword@123456789';
 
     Logger.info('Logging in with current password');
     await homePage.clickMyAccount();

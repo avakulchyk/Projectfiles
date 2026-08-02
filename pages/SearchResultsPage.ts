@@ -23,10 +23,12 @@ export class SearchResultsPage {
     // Verify search results page is displayed
     async expectSearchResultsPage(): Promise<void> {
 
-        await expect(this.searchPageHeader)
-            .toContainText('Search -');
+    await expect(this.page).toHaveURL(/route=product\/search/);
 
-    }
+    await expect(this.searchPageHeader)
+        .toBeVisible();
+
+}
 
 
     // Verify product exists in search results
