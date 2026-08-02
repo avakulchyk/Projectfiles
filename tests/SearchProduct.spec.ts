@@ -1,49 +1,167 @@
 /**
- * Test Case: Product Search
- * 
+ * Test Suite: Product Search
+ *
  * Tags: @master @regression
- * 
- * Steps:
- * 1) Navigate to the application URL
- * 2) Enter the product name in the search field
- * 3) Click the search button
- * 4) Verify if the product is displayed in the search results
+ *
+ * Scenarios:
+ * 1. Search existing product
+ * 2. Search non-existing product
+ * 3. Search with empty product name
+ * 4. Search product after login
  */
 
-import { test, expect } from '@playwright/test';
+
+import { test } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { SearchResultsPage } from '../pages/SearchResultsPage';
 import { TestConfig } from '../test.config';
 import { Logger } from '../utils/Logger';
 
-// Declare reusable variables
+
 let config: TestConfig;
 let homePage: HomePage;
 let searchResultsPage: SearchResultsPage;
 
-// Playwright hook - runs before each test
+let productName: string;
+
+
+const nonExistingProduct = 'NonExistingProduct123';
+
+
+
 test.beforeEach(async ({ page }) => {
-  Logger.info('Initializing test configuration and navigating to app URL');
-  config = new TestConfig(); // Load configuration values like URL and product name
-  await page.goto(config.appUrl); // Step 1: Navigate to the application
 
-  // Initialize page objects
-  homePage = new HomePage(page);
-  searchResultsPage = new SearchResultsPage(page);
+
+    Logger.info('Initializing test configuration');
+
+
+    config = new TestConfig();
+
+    productName = config.productName;
+
+
+    Logger.info(`Navigating to application URL: ${config.appUrl}`);
+
+
+    await page.goto(config.appUrl);
+
+
+    homePage = new HomePage(page);
+
+    searchResultsPage = new SearchResultsPage(page);
+
+
 });
 
-// Playwright hook - runs after each test (optional cleanup)
-test.afterEach(async ({ page }) => {
-  Logger.info('Cleaning up and closing page instance');
-  await page.close(); // Closes the browser tab after test
-});
+
 
 test('Verify user can search product by name @master @regression', async () => {
 
-    await homePage.enterProductName(config.productName);
-    await homePage.clickSearch();
+
+    Logger.info(`Searching for product: ${productName}`);
+
+
+    await homePage.searchProduct(productName);
+
+
+    Logger.info('Verifying search results page');
+
 
     await searchResultsPage.expectSearchResultsPage();
-    await searchResultsPage.expectProductExists(config.productName);
+
+
+    Logger.info(`Verifying product exists: ${productName}`);
+
+
+    await searchResultsPage.expectProductExists(productName);
+
+
+    Logger.info('Product search completed successfully');
+
 
 });
+
+
+
+test('Validate searching with a non existing Product Name @master @regression', async () => {
+
+
+    Logger.info(`Searching for non-existing product: ${nonExistingProduct}`);
+
+
+    await homePage.searchProduct(nonExistingProduct);
+
+
+    Logger.info('Verifying no products found message');
+
+
+    await searchResultsPage.expectNoProductsFound();
+
+
+    Logger.info('Non-existing product validation completed successfully');
+
+
+});
+
+
+
+test('Validate searching with empty Product Name @master @regression', async () => {
+
+
+    Logger.info('Validating empty product search');
+
+
+    await homePage.expectSearchFieldEmpty();
+
+
+    Logger.info('Clicking Search button without product name');
+
+
+    await homePage.clickSearch();
+
+
+    Logger.info('Verifying search results page');
+
+
+    await searchResultsPage.expectSearchResultsPage();
+
+
+    Logger.info('Empty search validation completed successfully');
+
+
+});
+
+test('Validate searching for a product after login to the Application @master @regression', async () => {
+
+    Logger.info('Opening Login page');
+
+    const loginPage = await homePage.clickLogin();
+
+    Logger.info('Login with valid credentials');
+
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
+    Logger.info('Verify user is logged in');
+
+    await homePage.expectLogoutVisible();
+
+    Logger.info(`Search for product: ${productName}`);
+
+    await homePage.searchProduct(productName);
+
+    Logger.info('Verify search results page');
+
+    await searchResultsPage.expectSearchResultsPage();
+
+    Logger.info(`Verify product exists: ${productName}`);
+
+    await searchResultsPage.expectProductExists(productName);
+
+    Logger.info('Product search after login completed successfully');
+
+});
+
+

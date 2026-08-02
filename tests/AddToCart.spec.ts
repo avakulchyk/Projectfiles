@@ -43,28 +43,48 @@ test.afterEach(async ({ page }) => {
   await page.close(); // Optional cleanup
 });
 
-test('Add product to cart test @master @regression', async ({ page }) => {
-  const productName = config.productName;
-  const quantity = config.productQuantity;
+test('Add product to cart test @master @regression', async () => {
 
-  Logger.info(`Step 2 & 3: Entering product name "${productName}" in search box and clicking Search`);
-  await homePage.enterProductName(productName);
-  await homePage.clickSearch();
+    const productName = config.productName;
+    const quantity = config.productQuantity;
 
-  Logger.info('Step 4: Verifying Search Results page is displayed');
-  expect(await searchResultsPage.isSearchResultsPageExists()).toBeTruthy();
 
-  Logger.info(`Step 5: Verifying product "${productName}" exists in search results`);
-  expect(await searchResultsPage.isProductExist(productName)).toBeTruthy();
+    Logger.info(`Searching for product: ${productName}`);
 
-  if (await searchResultsPage.isProductExist(productName)) {
-    Logger.info(`Step 6 & 7: Selecting product "${productName}", setting quantity to ${quantity}, and adding to cart`);
+    await homePage.enterProductName(productName);
+
+    await homePage.clickSearch();
+
+
+    Logger.info('Verifying Search Results page is displayed');
+
+    await searchResultsPage.expectSearchResultsPage();
+
+
+    Logger.info(`Verifying product "${productName}" exists`);
+
+    await searchResultsPage.expectProductExists(productName);
+
+
+    Logger.info(`Selecting product "${productName}"`);
+
     await searchResultsPage.selectProduct(productName);
-    await productPage.setQuantity(quantity); // Set quantity
-    await productPage.addToCart();           // Add to cart
 
-    Logger.info('Step 8: Asserting success confirmation message is visible');
-    expect(await productPage.isConfirmationMessageVisible()).toBeTruthy();
-  }
+
+    Logger.info(`Setting quantity: ${quantity}`);
+
+    await productPage.setQuantity(quantity);
+
+
+    Logger.info('Adding product to cart');
+
+    await productPage.addToCart();
+
+
+    Logger.info('Verifying success message');
+
+    await productPage.isConfirmationMessageVisible();
+
+
 });
 

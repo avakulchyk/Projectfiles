@@ -5,43 +5,37 @@ export class HomePage {
 
     private readonly page: Page;
 
-    // ======================
-    // Locators
-    // ======================
-
+    // Account
     private readonly myAccountMenu: Locator;
     private readonly loginOption: Locator;
     private readonly registerOption: Locator;
     private readonly logoutOption: Locator;
 
+    // Search
     private readonly searchInput: Locator;
     private readonly searchButton: Locator;
+    private readonly searchResults: Locator;
 
 
     constructor(page: Page) {
 
         this.page = page;
 
-
-        // My Account dropdown
+        // Account menu
         this.myAccountMenu = page.locator(
-            'span:has-text("My Account")'
+            '#top li.list-inline-item a.dropdown-toggle:has-text("My Account")'
         );
 
-
-        // Dropdown options
         this.loginOption = page.locator(
-            'a[href*="route=account/login"]'
+            '#top a[href*="route=account/login"]'
         );
-
 
         this.registerOption = page.locator(
-            'a[href*="route=account/register"]'
+            '#top a[href*="route=account/register"]'
         );
 
-
         this.logoutOption = page.locator(
-            'a[href*="route=account/logout"]'
+            '#top a[href*="route=account/logout"]'
         );
 
 
@@ -50,110 +44,121 @@ export class HomePage {
             'input[placeholder="Search"]'
         );
 
-
         this.searchButton = page.locator(
-            'button[type="submit"]'
+      'button:has(.fa-solid.fa-magnifying-glass)'
+  );
+
+        this.searchResults = page.locator(
+            '#product-search'
         );
     }
 
 
+    async openAccountMenu(): Promise<void> {
 
-    // ======================
-    // Actions
-    // ======================
-
-
-    async clickMyAccount(): Promise<void> {
+        await expect(this.myAccountMenu)
+            .toBeVisible();
 
         await this.myAccountMenu.click();
+    }
 
+
+    async closeAccountMenu(): Promise<void> {
+
+        if (await this.logoutOption.isVisible()) {
+            await this.myAccountMenu.click();
+        }
     }
 
 
     async clickLogin(): Promise<LoginPage> {
 
-        await this.loginOption.click();
+        await this.openAccountMenu();
+
+        await expect(this.loginOption)
+            .toBeVisible();
+
+        await Promise.all([
+            this.page.waitForURL(/route=account\/login/),
+            this.loginOption.click()
+        ]);
 
         return new LoginPage(this.page);
-
     }
 
 
     async clickRegister(): Promise<void> {
 
+        await this.openAccountMenu();
+
+        await expect(this.registerOption)
+            .toBeVisible();
+
         await this.registerOption.click();
-
     }
 
 
-    async searchProduct(
-        productName: string
-    ): Promise<void> {
+    async logout(): Promise<void> {
 
-        await this.searchInput.fill(productName);
+        await this.openAccountMenu();
 
-        await this.searchButton.click();
+        await expect(this.logoutOption)
+            .toBeVisible();
 
+        await this.logoutOption.click();
     }
 
 
+    async expectLogoutVisible(): Promise<void> {
 
-    // ======================
-    // Verifications
-    // ======================
+        await this.openAccountMenu();
+
+        await expect(this.logoutOption)
+            .toBeVisible();
+    }
 
 
-    /**
-     * Verify Home page is opened
-     */
-    async expectHomePage(): Promise<void> {
+    async enterProductName(productName: string): Promise<void> {
+
+        await this.closeAccountMenu();
 
         await expect(this.searchInput)
             .toBeVisible();
 
+        await this.searchInput.fill(productName);
     }
 
 
+    async clickSearch(): Promise<void> {
 
-    /**
-     * Verify Logout option is displayed
-     * User is authenticated
-     */
-    async expectLogoutVisible(): Promise<void> {
+        await expect(this.searchButton)
+            .toBeEnabled();
 
-        await expect(this.logoutOption)
+        await this.searchButton.click();
+
+        await this.page.waitForLoadState('networkidle');
+    }
+
+
+    async searchProduct(productName: string): Promise<void> {
+
+        await this.enterProductName(productName);
+
+        await this.clickSearch();
+    }
+
+
+    async expectSearchResultsVisible(): Promise<void> {
+
+        await expect(this.searchResults)
             .toBeVisible();
-
     }
 
 
+    async expectSearchFieldEmpty(): Promise<void> {
 
-    /**
-     * Verify Logout option is not displayed
-     * Guest user
-     */
-    async expectLogoutNotDisplayed(): Promise<void> {
-
-        await expect(this.logoutOption)
-            .not.toBeVisible();
-
-    }
-
-
-
-    /**
-     * Verify Login option is displayed
-     * User is logged out
-     */
-    async expectLoginOptionVisible(): Promise<void> {
-
-        await expect(this.loginOption)
-            .toBeVisible();
-
-
-        await expect(this.logoutOption)
-            .not.toBeVisible();
-
+        await expect(this.searchInput)
+            .toHaveValue('');
     }
 
 }
