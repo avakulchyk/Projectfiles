@@ -1,0 +1,12 @@
+✅ Registration is completed!
+✅ Logout is completed!
+✅ Login is completed!
+✅ Product added to cart!
+🛒 Navigated to shopping cart!
+Unable to retrieve total price: Error: locator.textContent: Error: strict mode violation: locator('//tfoot[@id=\'checkout-total\']//tr[last()]/td[@class=\'text-end\']') resolved to 2 elements:
+    1) <td colspan="4" class="text-end">…</td> aka getByRole('cell', { name: 'Total', exact: true })
+    2) <td class="text-end">$1,204.00</td> aka getByRole('cell', { name: '$1,204.00' })
+
+Call log:
+  - waiting for locator('//tfoot[@id=\'checkout-total\']//tr[last()]/td[@class=\'text-end\']')
+

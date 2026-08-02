@@ -1,0 +1,8 @@
+Exception occurred while entering product name: Error: locator.fill: Error: Element is not an <input>, <textarea>, <select> or [contenteditable] and does not have a role allowing [aria-readonly]
+Call log:
+  - waiting for locator('button[class="btn btn-light btn-lg"]')
+    - locator resolved to <button type="submit" class="btn btn-light btn-lg">…</button>
+    - fill("MacBook")
+  - attempting fill action
+    - waiting for element to be visible, enabled and editable
+
