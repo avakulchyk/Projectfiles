@@ -88,6 +88,14 @@ export class HomePage {
 
     }
 
+    async clickSearch(): Promise<void> {
+
+    await this.searchButton.click();
+
+    await this.page.waitForURL(/route=product\/search/);
+
+}
+
 
     // ======================
     // Verifications
@@ -141,5 +149,12 @@ export class HomePage {
             .not.toBeVisible();
 
     }
+
+    async expectSearchFieldEmpty(): Promise<void> {
+
+    await expect(this.searchInput)
+        .toHaveValue('');
+
+}
 
 }

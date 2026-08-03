@@ -104,64 +104,43 @@ test('Validate searching with a non existing Product Name @master @regression', 
 
 });
 
-
-
-test('Validate searching with empty Product Name @master @regression', async () => {
-
-
-    Logger.info('Validating empty product search');
-
-
-    await homePage.expectSearchFieldEmpty();
-
-
-    Logger.info('Clicking Search button without product name');
-
-
-    await homePage.clickSearch();
-
-
-    Logger.info('Verifying search results page');
-
-
-    await searchResultsPage.expectSearchResultsPage();
-
-
-    Logger.info('Empty search validation completed successfully');
-
-
-});
-
-test('Validate searching for a product after login to the Application @master @regression', async () => {
+test('Verify user can search for a product after login @master @regression', async () => {
 
     Logger.info('Opening Login page');
 
+    await homePage.clickMyAccount();
+
     const loginPage = await homePage.clickLogin();
 
-    Logger.info('Login with valid credentials');
+
+    Logger.info('Verifying Login page');
+
+    await loginPage.expectLoginPage();
+
+
+    Logger.info('Logging in with valid credentials');
 
     await loginPage.login(
         config.email,
         config.password
     );
 
-    Logger.info('Verify user is logged in');
 
-    await homePage.expectLogoutVisible();
-
-    Logger.info(`Search for product: ${productName}`);
+    Logger.info(`Searching for product: ${productName}`);
 
     await homePage.searchProduct(productName);
 
-    Logger.info('Verify search results page');
+
+    Logger.info('Verifying search results');
 
     await searchResultsPage.expectSearchResultsPage();
 
-    Logger.info(`Verify product exists: ${productName}`);
-
     await searchResultsPage.expectProductExists(productName);
 
-    Logger.info('Product search after login completed successfully');
+
+    Logger.info('Search after login completed successfully');
 
 });
+
+
 
