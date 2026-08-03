@@ -144,3 +144,26 @@ test('Verify user can search for a product after login @master @regression', asy
 
 
 
+test('Validate searching by providing a search criteria which results in multiple products @master @regression', async () => {
+
+    Logger.info(`Searching products using criteria: ${config.searchCriteria}`);
+
+
+    await homePage.searchProduct(config.searchCriteria);
+
+
+    Logger.info('Verifying search results page');
+
+
+    await searchResultsPage.expectSearchResultsPage();
+
+
+    Logger.info('Verifying multiple products are displayed');
+
+
+    await searchResultsPage.expectMultipleProductsDisplayed();
+
+
+    Logger.info('Multiple product search completed successfully');
+
+});

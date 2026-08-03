@@ -16,7 +16,10 @@ export class SearchResultsPage {
         this.page = page;
 
         this.searchPageHeader = page.locator('#content h1');
+
+        // Product names displayed in search results
         this.searchProducts = page.locator('h4 a');
+
         this.noProductsMessage = page.locator('#content p');
 
     }
@@ -25,7 +28,8 @@ export class SearchResultsPage {
     // Verify search results page is displayed
     async expectSearchResultsPage(): Promise<void> {
 
-        await expect(this.page).toHaveURL(/route=product\/search/);
+        await expect(this.page)
+            .toHaveURL(/route=product\/search/);
 
         await expect(this.searchPageHeader)
             .toBeVisible();
@@ -37,8 +41,21 @@ export class SearchResultsPage {
     async expectProductExists(productName: string): Promise<void> {
 
         await expect(
-            this.searchProducts.filter({ hasText: productName }).first()
+            this.searchProducts
+                .filter({ hasText: productName })
+                .first()
         ).toBeVisible();
+
+    }
+
+
+    // Verify multiple products are displayed in search results
+    async expectMultipleProductsDisplayed(): Promise<void> {
+
+        const productCount = await this.getProductCount();
+
+        expect(productCount)
+            .toBeGreaterThan(1);
 
     }
 
@@ -47,7 +64,9 @@ export class SearchResultsPage {
     async expectNoProductsFound(): Promise<void> {
 
         await expect(this.noProductsMessage)
-            .toContainText('There is no product that matches the search criteria.');
+            .toContainText(
+                'There is no product that matches the search criteria.'
+            );
 
     }
 
