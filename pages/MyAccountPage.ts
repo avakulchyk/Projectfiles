@@ -1,54 +1,122 @@
 import { Page, Locator, expect } from '@playwright/test';
-import { LogoutPage } from './LogoutPage'; // Import LogoutPage if needed
+import { LogoutPage } from './LogoutPage';
+import { ChangePasswordPage } from './ChangePasswordPage';
 
 export class MyAccountPage {
+
     private readonly page: Page;
-    
-    // Locators using CSS selectors
+
+    // ======================
+    // Locators
+    // ======================
+
     private readonly msgHeading: Locator;
     private readonly lnkLogout: Locator;
+    private readonly lnkChangePassword: Locator;
+
 
     constructor(page: Page) {
+
         this.page = page;
-        
-        // Initialize locators with CSS selectors
-        this.msgHeading = page.locator('h1:has-text("My Account")');
-        this.lnkLogout = page.locator("text='Logout'").nth(1);
+
+
+        // My Account heading
+        this.msgHeading = page.locator(
+            'h1:has-text("My Account")'
+        );
+
+
+        // Sidebar Logout link
+        this.lnkLogout = page.locator(
+            "a.list-group-item[href*='route=account/logout']"
+        );
+
+
+        // Change Password link
+        this.lnkChangePassword = page.locator(
+            "a.list-group-item[href*='route=account/password']"
+        );
+
     }
 
+
+
+    // ======================
+    // Validations
+    // ======================
+
+
     /**
-     * Verifies if My Account page is displayed
-     * @returns Promise<boolean> - Returns true if heading is visible
+     * Verify My Account page is displayed
      */
-    async isMyAccountPageExists(): Promise<boolean> {
-        try {
-            const isVisible = await this.msgHeading.isVisible();
-            return isVisible;
-        } catch (error) {
-            console.log(`Error checking My Account page heading visibility: ${error}`);
-            return false;
-        }
+    async expectMyAccountPage(): Promise<void> {
+
+        await expect(this.msgHeading)
+            .toHaveText('My Account');
+
     }
 
+
     /**
-     * Clicks on Logout link
-     * @returns Promise<LogoutPage> - Returns instance of LogoutPage
+     * Verify Logout link is visible
+     */
+    async expectLogoutLinkVisible(): Promise<void> {
+
+        await expect(this.lnkLogout)
+            .toBeVisible();
+
+    }
+
+
+    /**
+     * Verify Change Password link is visible
+     */
+    async expectChangePasswordLinkVisible(): Promise<void> {
+
+        await expect(this.lnkChangePassword)
+            .toBeVisible();
+
+    }
+
+
+
+    // ======================
+    // Actions
+    // ======================
+
+
+    /**
+     * Navigate to Change Password page
+     */
+    async clickChangePassword(): Promise<ChangePasswordPage> {
+
+        await this.lnkChangePassword.click();
+
+
+        await expect(this.page)
+            .toHaveURL(/route=account\/password/);
+
+
+        return new ChangePasswordPage(this.page);
+
+    }
+
+
+
+    /**
+     * Logout from application
      */
     async clickLogout(): Promise<LogoutPage> {
-        try {
-            await this.lnkLogout.click();
-            return new LogoutPage(this.page);
-        } catch (error) {
-            console.log(`Unable to click Logout link: ${error}`);
-            throw error; // Re-throw the error to fail the test
-        }
+
+        await this.lnkLogout.click();
+
+
+        await expect(this.page)
+            .toHaveURL(/route=account\/logout/);
+
+
+        return new LogoutPage(this.page);
+
     }
 
-    /**
-     * Alternative method to return page exists using title
-     * @returns Promise<boolean> - Returns true if page title matches
-     */
-    async getPageTitle(): Promise<string> {
-        return (this.page.title());
-    }
 }

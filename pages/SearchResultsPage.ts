@@ -1,84 +1,94 @@
-import { Page, Locator } from '@playwright/test';
-import { ProductPage } from './ProductPage'; // Import ProductPage if needed
+import { Page, Locator, expect } from '@playwright/test';
+import { ProductPage } from './ProductPage';
 
 export class SearchResultsPage {
+
     private readonly page: Page;
-    
-    // Locators using CSS selectors
+
+    // Locators
     private readonly searchPageHeader: Locator;
     private readonly searchProducts: Locator;
+    private readonly noProductsMessage: Locator;
+
 
     constructor(page: Page) {
+
         this.page = page;
-        
-        // Initialize locators with CSS selectors
+
         this.searchPageHeader = page.locator('#content h1');
-        this.searchProducts = page.locator('h4>a');
-        
+
+        // Product names displayed in search results
+        this.searchProducts = page.locator('h4 a');
+
+        this.noProductsMessage = page.locator('#content p');
+
     }
 
-    /**
-     * Verify if the search results page exists by checking the header text
-     * @returns Promise<boolean> - true if the search results page exists
-     */
-    async isSearchResultsPageExists(): Promise<boolean> {
-        try {
-            const headerText = await this.searchPageHeader.textContent();
-            return headerText?.includes('Search -') ?? false;
-        } catch (error) {
-            return false;
-        }
+
+    // Verify search results page is displayed
+    async expectSearchResultsPage(): Promise<void> {
+
+        await expect(this.page)
+            .toHaveURL(/route=product\/search/);
+
+        await expect(this.searchPageHeader)
+            .toBeVisible();
+
     }
 
-    /**
-     * Check if a product exists in the search results by its name
-     * @param productName - The name of the product to search for
-     * @returns Promise<boolean> - true if the product exists
-     */
-    async isProductExist(productName: string): Promise<boolean> {
-        try {
-            const count = await this.searchProducts.count();
-            for (let i = 0; i < count; i++) {
-                const product = this.searchProducts.nth(i);
-                 const title = await product.textContent();
-                 if (title === productName) {
-                    return true;
-                }
-            }
-        } catch (error) {
-            console.log(`Error checking product existence: ${error}`);
-        }
-        return false;
+
+    // Verify product exists in search results
+    async expectProductExists(productName: string): Promise<void> {
+
+        await expect(
+            this.searchProducts
+                .filter({ hasText: productName })
+                .first()
+        ).toBeVisible();
+
     }
 
-    /**
-     * Select a product from the search results by its name
-     * @param productName - The name of the product to select
-     * @returns Promise<ProductPage> - ProductPage instance after selecting the product
-     */
-    async selectProduct(productName: string): Promise<ProductPage | null> {
-        try {
-            const count = await this.searchProducts.count();
-            for (let i = 0; i < count; i++) {
-                const product = this.searchProducts.nth(i);
-                const title = await product.textContent();
-                if (title === productName) {
-                    await product.click();
-                    return new ProductPage(this.page);
-                }
-            }
-            console.log(`Product not found: ${productName}`);
-        } catch (error) {
-            console.log(`Error selecting product: ${error}`);
-        }
-        return null;
+
+    // Verify multiple products are displayed in search results
+    async expectMultipleProductsDisplayed(): Promise<void> {
+
+        const productCount = await this.getProductCount();
+
+        expect(productCount)
+            .toBeGreaterThan(1);
+
     }
 
-    /**
-     * Get count of products in search results
-     * @returns Promise<number> - Number of products found
-     */
+
+    // Verify no products found message is displayed
+    async expectNoProductsFound(): Promise<void> {
+
+        await expect(this.noProductsMessage)
+            .toContainText(
+                'There is no product that matches the search criteria.'
+            );
+
+    }
+
+
+    // Select product from search results
+    async selectProduct(productName: string): Promise<ProductPage> {
+
+        await this.searchProducts
+            .filter({ hasText: productName })
+            .first()
+            .click();
+
+        return new ProductPage(this.page);
+
+    }
+
+
+    // Get number of products in search results
     async getProductCount(): Promise<number> {
+
         return await this.searchProducts.count();
+
     }
+
 }

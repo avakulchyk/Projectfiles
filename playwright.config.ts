@@ -15,6 +15,7 @@ export default defineConfig({
   ],
 
   use: {
+    headless: false,
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
