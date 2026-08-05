@@ -17,7 +17,7 @@ export class TestConfig {
     totalPrice = "$1,204.00";
 
 
-    // Search criteria
+    // Search criteria for Mac
     // Used for search scenarios returning multiple products
     searchCriteria = "Mac";
 
