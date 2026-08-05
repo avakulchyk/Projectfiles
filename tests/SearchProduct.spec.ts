@@ -167,3 +167,20 @@ test('Validate searching by providing a search criteria which results in multipl
     Logger.info('Multiple product search completed successfully');
 
 });
+
+test('Validate search functionality field has placeholder @master @regression', async () => {
+
+    Logger.info('Verifying Home page is displayed');
+
+    await homePage.expectHomePage();
+
+
+    Logger.info('Verifying search field placeholder');
+
+
+    await homePage.expectSearchFieldPlaceholder();
+
+
+    Logger.info('Search field placeholder validation completed successfully');
+
+});
