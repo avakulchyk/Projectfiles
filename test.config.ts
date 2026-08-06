@@ -1,10 +1,7 @@
 export class TestConfig {
 
     // Application URL
-    appUrl = "http://localhost/opencart/upload/";
-    // appUrl = "https://naveenautomationlabs.com/opencart";
-    // appUrl = "https://tutorialsninja.com/demo/";
-
+    appUrl = process.env.BASE_URL || "http://localhost:8080/";
 
     // Valid login credentials
     email = "vakulchykanastasiia@gmail.com";
@@ -18,7 +15,6 @@ export class TestConfig {
 
 
     // Search criteria
-    // Used for search scenarios returning multiple products
     searchCriteria = "Mac";
 
 }
