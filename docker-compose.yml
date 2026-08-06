@@ -30,9 +30,6 @@ services:
     ports:
       - "8080:80"
 
-    volumes:
-      - ./upload:/var/www/html
-
     depends_on:
       mysql:
         condition: service_healthy
