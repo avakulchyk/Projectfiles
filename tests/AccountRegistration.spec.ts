@@ -17,10 +17,17 @@ let registrationPage: RegistrationPage;
 let config: TestConfig;
 
 test.beforeEach(async ({ page }) => {
-    Logger.info('Initializing test configuration and navigating to app URL');
+
     config = new TestConfig();
 
-    await page.goto(config.appUrl);
+    Logger.info(`Opening application: ${config.appUrl}`);
+
+    await page.goto(config.appUrl, {
+        waitUntil: 'networkidle',
+        timeout: 60000
+    });
+
+    await expect(page).toHaveTitle(/OpenCart|Your Store/i);
 
     homePage = new HomePage(page);
     registrationPage = new RegistrationPage(page);
