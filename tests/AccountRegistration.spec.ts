@@ -23,11 +23,15 @@ test.beforeEach(async ({ page }) => {
     Logger.info(`Opening application: ${config.appUrl}`);
 
     await page.goto(config.appUrl, {
-        waitUntil: 'networkidle',
+        waitUntil: 'domcontentloaded',
         timeout: 60000
     });
 
-    await expect(page).toHaveTitle(/OpenCart|Your Store/i);
+    await expect(page).toHaveTitle(/Your Store/i, {
+        timeout: 15000
+    });
+
+    Logger.info(`Application opened successfully. Title: ${await page.title()}`);
 
     homePage = new HomePage(page);
     registrationPage = new RegistrationPage(page);

@@ -26,9 +26,14 @@ jobs:
           docker compose up -d
 
 
-      - name: Check containers status
+      - name: Check Docker containers
         run: |
-          docker ps
+          docker compose ps
+
+
+      - name: Check OpenCart files
+        run: |
+          docker exec opencart-app ls -la /var/www/html
 
 
       - name: Wait for MySQL
@@ -41,7 +46,7 @@ jobs:
               exit 0
             fi
 
-            echo "Waiting for MySQL..."
+            echo "Waiting..."
             sleep 5
           done
 
@@ -52,15 +57,22 @@ jobs:
 
       - name: Import database
         run: |
-          docker exec -i opencart-db mysql -uopencart -popencart opencart < opencart.sql
+          docker exec -i opencart-db mysql \
+          -uopencart \
+          -popencart \
+          opencart < opencart.sql
 
 
-      - name: Check database tables
+      - name: Verify database
         run: |
-          docker exec -i opencart-db mysql -uopencart -popencart opencart -e "SHOW TABLES;"
+          docker exec opencart-db mysql \
+          -uopencart \
+          -popencart \
+          opencart \
+          -e "SHOW TABLES;"
 
 
-      - name: Restart OpenCart after database import
+      - name: Restart OpenCart
         run: |
           docker restart opencart-app
           sleep 10
@@ -71,7 +83,8 @@ jobs:
           echo "Waiting for OpenCart..."
 
           for i in {1..30}; do
-            if curl -f http://localhost:8080; then
+
+            if curl -s http://localhost:8080/ | grep -q "Your Store"; then
               echo "OpenCart is ready!"
               exit 0
             fi
@@ -80,12 +93,17 @@ jobs:
             sleep 5
           done
 
+
           echo "OpenCart failed to start"
 
-          docker ps
           docker logs opencart-app
-
           exit 1
+
+
+      - name: Debug OpenCart page
+        run: |
+          echo "Checking page title..."
+          curl -s http://localhost:8080/ | grep -i "<title>"
 
 
       - name: Setup Node.js
@@ -117,6 +135,14 @@ jobs:
           path: playwright-report/
 
 
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results/
+
+
       - name: Show Docker logs on failure
         if: failure()
         run: |
@@ -125,3 +151,9 @@ jobs:
 
           echo "=== MySQL logs ==="
           docker logs opencart-db
+
+
+      - name: Stop containers
+        if: always()
+        run: |
+          docker compose down
