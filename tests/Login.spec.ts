@@ -10,7 +10,6 @@ import { LoginPage } from '../pages/LoginPage';
 import { MyAccountPage } from '../pages/MyAccountPage';
 import { TestConfig } from '../test.config';
 import { Logger } from '../utils/Logger';
-import { RandomDataUtil } from '../utils/randomDataGenerator'; 
 
 
 let config: TestConfig;
@@ -20,71 +19,62 @@ let myAccountPage: MyAccountPage;
 
 
 test.beforeEach(async ({ page }) => {
+
     Logger.info('Starting test setup...');
+
     config = new TestConfig();
+
     await page.goto(config.appUrl);
 
     homePage = new HomePage(page);
     loginPage = new LoginPage(page);
     myAccountPage = new MyAccountPage(page);
+
 });
 
+
 test.afterEach(async ({ page }) => {
+
     Logger.info('Test completed, closing page.');
-    await page.close();
-});
-
-
-test.afterEach(async ({ page }) => {
 
     await page.close();
 
 });
 
 
+// -----------------------------------------------------
 // Valid login
+// -----------------------------------------------------
 
 test('User login test @master @sanity @regression', async ({ page }) => {
-    Logger.info('Navigating to Login Page');
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    Logger.info(`Logging in with email: ${config.email}`);
+
+    Logger.info(`Login with user: ${config.email}`);
+
+
     await loginPage.login(
         config.email,
         config.password
     );
 
-    Logger.info('Verifying My Account page load');
+
     await myAccountPage.expectMyAccountPage();
 
-    await expect(page).toHaveURL(/route=account\/account/);
+
+    await expect(page)
+        .toHaveURL(/route=account\/account/);
+
 });
 
 
-// Invalid credentials
+// -----------------------------------------------------
+// Invalid password
+// -----------------------------------------------------
 
-test('Validate logging into the application using a valid email address and an invalid password @master @regression', async ({ page }) => {
-    Logger.info('Navigating to Login Page');
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
-
-    Logger.info(`Entering valid email: ${config.email} and an invalid password`);
-    await loginPage.setEmail(config.email);
-    await loginPage.setPassword(RandomDataUtil.getPassword());
-    await loginPage.clickLogin();
-
-    Logger.info('Verifying login failure and error message');
-    await expect(page).toHaveURL(/route=account\/login/);
-    await loginPage.expectLoginErrorMessage(
-        'Warning: No match for E-Mail Address and/or Password.'
-    );
-});
-
-
-// Valid email + invalid password
-
-/*test('Validate logging into the application using a valid email address and an invalid password - second verification @master @regression', async ({ page }) => {
+test('Validate login with valid email and invalid password @master @regression', async ({ page }) => {
 
 
     await homePage.clickMyAccount();
@@ -97,192 +87,259 @@ test('Validate logging into the application using a valid email address and an i
 
 
     await loginPage.setPassword(
-        RandomDataUtil.getPassword()
+        "WrongPassword123"
     );
+
 
     await loginPage.clickLogin();
 
+
     await expect(page)
         .toHaveURL(/route=account\/login/);
+
 
     await loginPage.expectLoginErrorMessage(
         'Warning: No match for E-Mail Address and/or Password.'
     );
 
-});*/
+});
 
 
+// -----------------------------------------------------
 // Forgotten password
-test("Validate 'Forgotten Password' link is available in the Login page and is working @master @sanity @regression", async ({ page }) => {
-    Logger.info('Navigating to Login Page');
+// -----------------------------------------------------
+
+test("Validate 'Forgotten Password' link is available @master @sanity @regression", async ({ page }) => {
+
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    Logger.info('Verifying and clicking Forgotten Password link');
+
     await loginPage.expectForgottenPasswordLinkVisible();
+
+
     await loginPage.clickForgottenPassword();
 
-    Logger.info('Verifying redirect to Forgotten Password page');
-    await expect(page).toHaveURL(/route=account\/forgotten/);
+
+    await expect(page)
+        .toHaveURL(/route=account\/forgotten/);
+
 });
 
 
+// -----------------------------------------------------
 // Placeholders
+// -----------------------------------------------------
 
-test('Validate E-Mail Address and Password fields have the correct placeholder text @master @regression', async () => {
-    Logger.info('Navigating to Login Page');
+test('Validate Login page placeholders @master @regression', async () => {
+
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    Logger.info('Checking input field placeholders');
+
     await loginPage.expectPlaceholders();
+
 });
 
 
+// -----------------------------------------------------
 // Browser back after login
+// -----------------------------------------------------
 
 test('Validate browser back navigation after successful login @master @regression', async ({ page }) => {
 
-    Logger.info('Login to application');
 
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    await loginPage.login(config.email, config.password);
 
-    Logger.info('Verify successful login');
+    await loginPage.login(
+        config.email,
+        config.password
+    );
+
 
     await myAccountPage.expectMyAccountPage();
 
-    Logger.info('Navigate back using browser history');
 
-    await page.goBack({ waitUntil: 'networkidle' });
+    await page.goBack({
+        waitUntil: 'networkidle'
+    });
 
-    Logger.info('Verify user is returned to login page');
 
-    await expect(page).toHaveURL(/route=account\/login/);
+    await expect(page)
+        .toHaveURL(/route=account\/login/);
+
 
     await loginPage.expectLoginPage();
+
 });
 
 
-// Account lock after failed login attempts
-/*test('Validate account lock after five unsuccessful login attempts @master @regression', async ({ page }) => {
-    const user = RandomDataUtil.getUser();
+// -----------------------------------------------------
+// Account lock after five failed attempts
+// -----------------------------------------------------
 
-    Logger.info(`Generated random test user: ${user.email}`);
+test('Validate account lock after five unsuccessful login attempts @master @regression', async ({ page }) => {
 
-    Logger.info('Navigating to Login Page');
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    Logger.info('Starting 5 consecutive failed login attempts');
-    for (let attempt = 1; attempt <= 5; attempt++) {
-        Logger.info(`Failed login attempt #${attempt} for user: ${user.email}`);
 
-        await loginPage.login(
-            user.email,
-            user.password
+    Logger.info(
+        `Testing account lock for ${config.failedLoginEmail}`
+    );
+
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+
+
+        Logger.info(
+            `Failed login attempt #${attempt}`
         );
 
-        Logger.info(`Verifying failure state for attempt #${attempt}`);
-        await loginPage.expectLoginPage();
+
+        await loginPage.login(
+            config.failedLoginEmail,
+            config.wrongPassword
+        );
+
 
         await loginPage.expectLoginErrorMessage(
             'Warning: No match for E-Mail Address and/or Password.'
         );
+
+
     }
 
-    Logger.info('Completed 5 failed login attempt assertions successfully');
-});*/
 
-
-// Change password and login with new password
-/*test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
-    const newPassword = 'NewPassword@123456789';
-
-    Logger.info('Logging in with current password');
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
-    await loginPage.login(
-        config.email,
-        config.password
+    Logger.info(
+        'Account lock scenario completed'
     );
 
-    Logger.info('Verifying successful initial login');
+});
+
+
+// -----------------------------------------------------
+// Change password
+// -----------------------------------------------------
+
+test('Validate login after changing password @master @sanity @regression', async ({ page }) => {
+
+
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+
+    await loginPage.login(
+        config.changePasswordEmail,
+        config.changePassword
+    );
+
+
     await myAccountPage.expectMyAccountPage();
 
-    Logger.info('Opening Change Password page');
-    const changePasswordPage = await myAccountPage.clickChangePassword();
 
-    Logger.info('Verifying Change Password page load');
+    const changePasswordPage =
+        await myAccountPage.clickChangePassword();
+
+
     await changePasswordPage.expectChangePasswordPage();
 
-    Logger.info('Updating account password');
-    await changePasswordPage.changePassword(newPassword);
 
-    Logger.info('Logging out of current session');
-    await homePage.clickMyAccount();
-    const logoutPage = await myAccountPage.clickLogout();
-
-    Logger.info('Verifying Logout page load');
-    await logoutPage.expectLogoutPage();
-
-    Logger.info('Navigating back to Login page');
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
-
-    Logger.info('Logging in with newly updated password');
-    await loginPage.login(
-        config.email,
-        newPassword
+    await changePasswordPage.changePassword(
+        config.newPassword
     );
 
-    Logger.info('Verifying successful login with new password');
+
+    await homePage.clickMyAccount();
+
+
+    const logoutPage =
+        await myAccountPage.clickLogout();
+
+
+    await logoutPage.expectLogoutPage();
+
+
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+
+    await loginPage.login(
+        config.changePasswordEmail,
+        config.newPassword
+    );
+
+
     await myAccountPage.expectMyAccountPage();
+
 });
-*/
 
 
+// -----------------------------------------------------
 // Password masking
+// -----------------------------------------------------
+
 test('Validate password field hides entered text @master @sanity @regression', async ({ page }) => {
-    Logger.info('Navigating to Login page');
+
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    Logger.info('Entering password');
-    await loginPage.setPassword(config.password);
 
-    Logger.info('Verifying password input field is masked');
+    await loginPage.setPassword(
+        config.password
+    );
+
+
     await loginPage.expectPasswordFieldMasked();
+
 });
 
 
-// Session expiration by clearing cookies
-test('Validate timeout of the Login Session by clearing cookies @regression', async ({ page }) => {
-    Logger.info('Navigating to Login page and signing in');
+// -----------------------------------------------------
+// Session timeout
+// -----------------------------------------------------
+
+test('Validate timeout of Login Session by clearing cookies @regression', async ({ page }) => {
+
+
     await homePage.clickMyAccount();
     await homePage.clickLogin();
+
+
     await loginPage.login(
         config.email,
         config.password
     );
 
-    Logger.info('Verifying successful initial login');
+
     await myAccountPage.expectMyAccountPage();
 
-    Logger.info('Clearing context cookies to force session expiration');
-    await page.context().clearCookies();
 
-    Logger.info('Reloading page and waiting for network idle');
+    await page.context()
+        .clearCookies();
+
+
     await page.reload();
-    await page.waitForLoadState('networkidle');
 
-    Logger.info('Verifying redirection back to Login page and login button visibility');
-    await expect(page).toHaveURL(/route=account\/login/);
+
+    await page.waitForLoadState(
+        'networkidle'
+    );
+
+
+    await expect(page)
+        .toHaveURL(/route=account\/login/);
+
+
     await loginPage.expectLoginButtonVisible();
-});
 
+});
 
 
 

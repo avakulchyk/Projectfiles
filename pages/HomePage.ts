@@ -45,8 +45,8 @@ export class HomePage {
         );
 
         this.searchButton = page.locator(
-            'button.btn.btn-light.btn-lg'
-        );
+    "button[class='btn btn-light btn-lg']"
+);
     }
 
     // ======================
@@ -61,7 +61,13 @@ export class HomePage {
 
     async clickLogin(): Promise<LoginPage> {
 
-        await this.loginOption.click();
+        await this.loginOption
+            .first()
+            .click();
+
+        await this.page.waitForURL(
+            /route=account\/login/
+        );
 
         return new LoginPage(this.page);
 
@@ -77,21 +83,26 @@ export class HomePage {
 
         await this.searchInput.fill(productName);
 
-        await this.clickSearch();
-
-    }
-
-    async clickSearch(): Promise<void> {
-
         await this.searchButton.click();
 
         await this.page.waitForURL(/route=product\/search/);
 
     }
 
+
+    async clickSearch(): Promise<void> {
+
+        await this.searchButton.click();
+
+    await this.page.waitForURL(/route=product\/search/);
+
+}
+
+
     // ======================
     // Verifications
     // ======================
+
 
     /**
      * Verify Home page is opened
@@ -138,6 +149,7 @@ export class HomePage {
             .not.toBeVisible();
 
     }
+
 
     async expectSearchFieldEmpty(): Promise<void> {
 
