@@ -170,4 +170,18 @@ export class HomePage {
 
     }
 
+
+    /**
+     * Verify search field placeholder
+     */
+    async expectSearchFieldPlaceholder(): Promise<void> {
+
+        await expect(this.searchInput)
+            .toHaveAttribute(
+                'placeholder',
+                'Search'
+            );
+
+    }
+
 }
