@@ -5,7 +5,7 @@ export class TestConfig {
 
     // Valid login credentials
     email = "vakulchykanastasiia@gmail.com";
-    password = "NewPassword@12345678";
+    password = "NewPassword@123456789";
 
 
     // Product details
