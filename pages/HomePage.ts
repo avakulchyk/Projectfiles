@@ -17,7 +17,6 @@ export class HomePage {
     private readonly searchInput: Locator;
     private readonly searchButton: Locator;
 
-
     constructor(page: Page) {
 
         this.page = page;
@@ -42,14 +41,13 @@ export class HomePage {
 
         // Search
         this.searchInput = page.locator(
-            'input[placeholder="Search"]'
+            'input[name="search"]'
         );
 
         this.searchButton = page.locator(
-    "button[class='btn btn-light btn-lg']"
-);
+            'button.btn.btn-light.btn-lg'
+        );
     }
-
 
     // ======================
     // Actions
@@ -61,7 +59,6 @@ export class HomePage {
 
     }
 
-
     async clickLogin(): Promise<LoginPage> {
 
         await this.loginOption.click();
@@ -70,32 +67,27 @@ export class HomePage {
 
     }
 
-
     async clickRegister(): Promise<void> {
 
         await this.registerOption.click();
 
     }
 
-
     async searchProduct(productName: string): Promise<void> {
 
         await this.searchInput.fill(productName);
+
+        await this.clickSearch();
+
+    }
+
+    async clickSearch(): Promise<void> {
 
         await this.searchButton.click();
 
         await this.page.waitForURL(/route=product\/search/);
 
     }
-
-    async clickSearch(): Promise<void> {
-
-    await this.searchButton.click();
-
-    await this.page.waitForURL(/route=product\/search/);
-
-}
-
 
     // ======================
     // Verifications
@@ -111,7 +103,6 @@ export class HomePage {
 
     }
 
-
     /**
      * Verify Logout option is displayed
      * User is authenticated
@@ -123,7 +114,6 @@ export class HomePage {
 
     }
 
-
     /**
      * Verify Logout option is not displayed
      * Guest user
@@ -134,7 +124,6 @@ export class HomePage {
             .not.toBeVisible();
 
     }
-
 
     /**
      * Verify Login option is displayed
@@ -152,9 +141,22 @@ export class HomePage {
 
     async expectSearchFieldEmpty(): Promise<void> {
 
-    await expect(this.searchInput)
-        .toHaveValue('');
+        await expect(this.searchInput)
+            .toHaveValue('');
 
-}
+    }
+
+    /**
+     * Verify search field placeholder
+     */
+    async expectSearchFieldPlaceholder(): Promise<void> {
+
+        await expect(this.searchInput)
+            .toHaveAttribute(
+                'placeholder',
+                'Search'
+            );
+
+    }
 
 }
