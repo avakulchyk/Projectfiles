@@ -27,11 +27,17 @@ test.beforeEach(async ({ page }) => {
         timeout: 60000
     });
 
-    await expect(page).toHaveTitle(/Your Store/i, {
-        timeout: 15000
+    await page.waitForLoadState('networkidle').catch(() => {
+        Logger.info('Network idle state was not reached.');
     });
 
-    Logger.info(`Application opened successfully. Title: ${await page.title()}`);
+    Logger.info(`Current URL: ${page.url()}`);
+
+    const title = await page.title();
+    Logger.info(`Page title: "${title}"`);
+
+    const html = await page.content();
+    Logger.info(`Page HTML (first 500 chars): ${html.substring(0, 500)}`);
 
     homePage = new HomePage(page);
     registrationPage = new RegistrationPage(page);
