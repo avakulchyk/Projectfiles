@@ -17,6 +17,7 @@ export class HomePage {
     private readonly searchInput: Locator;
     private readonly searchButton: Locator;
 
+
     constructor(page: Page) {
 
         this.page = page;
@@ -41,13 +42,14 @@ export class HomePage {
 
         // Search
         this.searchInput = page.locator(
-            'input[name="search"]'
+            'input[placeholder="Search"]'
         );
 
         this.searchButton = page.locator(
-            'button.btn.btn-light.btn-lg'
+            "button[class='btn btn-light btn-lg']"
         );
     }
+
 
     // ======================
     // Actions
@@ -59,13 +61,21 @@ export class HomePage {
 
     }
 
+
     async clickLogin(): Promise<LoginPage> {
 
-        await this.loginOption.click();
+        await this.loginOption
+            .first()
+            .click();
+
+        await this.page.waitForURL(
+            /route=account\/login/
+        );
 
         return new LoginPage(this.page);
 
     }
+
 
     async clickRegister(): Promise<void> {
 
@@ -73,25 +83,35 @@ export class HomePage {
 
     }
 
+
     async searchProduct(productName: string): Promise<void> {
 
         await this.searchInput.fill(productName);
 
-        await this.clickSearch();
+        await this.searchButton.click();
+
+        await this.page.waitForURL(
+            /route=product\/search/
+        );
 
     }
+
 
     async clickSearch(): Promise<void> {
 
         await this.searchButton.click();
 
-        await this.page.waitForURL(/route=product\/search/);
+        await this.page.waitForURL(
+            /route=product\/search/
+        );
 
     }
+
 
     // ======================
     // Verifications
     // ======================
+
 
     /**
      * Verify Home page is opened
@@ -102,6 +122,7 @@ export class HomePage {
             .toBeVisible();
 
     }
+
 
     /**
      * Verify Logout option is displayed
@@ -114,6 +135,7 @@ export class HomePage {
 
     }
 
+
     /**
      * Verify Logout option is not displayed
      * Guest user
@@ -124,6 +146,7 @@ export class HomePage {
             .not.toBeVisible();
 
     }
+
 
     /**
      * Verify Login option is displayed
@@ -139,23 +162,11 @@ export class HomePage {
 
     }
 
+
     async expectSearchFieldEmpty(): Promise<void> {
 
         await expect(this.searchInput)
             .toHaveValue('');
-
-    }
-
-    /**
-     * Verify search field placeholder
-     */
-    async expectSearchFieldPlaceholder(): Promise<void> {
-
-        await expect(this.searchInput)
-            .toHaveAttribute(
-                'placeholder',
-                'Search'
-            );
 
     }
 
