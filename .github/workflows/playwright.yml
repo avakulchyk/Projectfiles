@@ -1,6 +1,9 @@
+# Updated workflow
 name: Playwright Tests
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main
