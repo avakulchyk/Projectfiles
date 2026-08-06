@@ -31,11 +31,6 @@ jobs:
           docker compose ps
 
 
-      - name: Check OpenCart files
-        run: |
-          docker exec opencart-app ls -la /var/www/html
-
-
       - name: Wait for MySQL
         run: |
           echo "Waiting for MySQL..."
@@ -50,35 +45,54 @@ jobs:
 
               echo "MySQL is ready!"
               exit 0
+
             fi
 
             echo "Waiting for MySQL..."
             sleep 5
+
           done
 
 
           echo "MySQL failed to start"
-
           docker logs opencart-db
-
           exit 1
 
 
       - name: Import database
         run: |
           docker exec -i opencart-db mysql \
-          -uopencart \
-          -popencart \
-          opencart < opencart.sql
+            -uopencart \
+            -popencart \
+            opencart < opencart.sql
 
 
       - name: Verify database
         run: |
+          echo "Checking OpenCart database..."
+
           docker exec opencart-db mysql \
-          -uopencart \
-          -popencart \
-          opencart \
-          -e "SHOW TABLES;"
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "SHOW TABLES;" | grep oc_store
+
+          echo "Database is ready!"
+
+
+      - name: Fix OpenCart permissions
+        run: |
+          docker exec opencart-app bash -c "
+            mkdir -p /var/www/html/system/storage/cache
+            mkdir -p /var/www/html/system/storage/logs
+            mkdir -p /var/www/html/system/storage/session
+
+            chown -R www-data:www-data /var/www/html/system/storage
+            chown -R www-data:www-data /var/www/html/image
+
+            chmod -R 775 /var/www/html/system/storage
+            chmod -R 775 /var/www/html/image
+          "
 
 
       - name: Restart OpenCart
@@ -87,15 +101,26 @@ jobs:
           sleep 10
 
 
+      - name: Check OpenCart files
+        run: |
+          docker exec opencart-app ls -la /var/www/html
+
+
       - name: Wait for OpenCart
         run: |
           echo "Waiting for OpenCart..."
 
           for i in {1..30}; do
 
-            if curl -f http://localhost:8080/ > /dev/null; then
+            TITLE=$(curl -s http://localhost:8080/ | grep -i "<title>")
+
+            echo "Current title: $TITLE"
+
+            if echo "$TITLE" | grep -qi "Your Store"; then
+
               echo "OpenCart is ready!"
               exit 0
+
             fi
 
             echo "Waiting for OpenCart..."
@@ -104,46 +129,45 @@ jobs:
           done
 
 
-          echo "OpenCart failed to start"
+          echo "OpenCart failed"
 
+          echo "=== OpenCart logs ==="
           docker logs opencart-app
 
           exit 1
 
 
-      - name: Debug OpenCart response
-        run: |
-          echo "OpenCart response:"
-          curl -I http://localhost:8080/
-
-          echo "Page title:"
-          curl -s http://localhost:8080/ | grep -i "<title>" || true
-
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
+
         with:
           node-version: 20
 
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
 
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: |
+          npx playwright install --with-deps
 
 
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:8080/
           CI: true
-        run: npx playwright test
+
+        run: |
+          npx playwright test
 
 
       - name: Upload Playwright report
         if: always()
+
         uses: actions/upload-artifact@v4
+
         with:
           name: playwright-report
           path: playwright-report/
@@ -151,7 +175,9 @@ jobs:
 
       - name: Upload test results
         if: always()
+
         uses: actions/upload-artifact@v4
+
         with:
           name: test-results
           path: test-results/
@@ -159,9 +185,12 @@ jobs:
 
       - name: Show Docker logs on failure
         if: failure()
+
         run: |
+
           echo "=== OpenCart logs ==="
           docker logs opencart-app
+
 
           echo "=== MySQL logs ==="
           docker logs opencart-db
@@ -169,5 +198,6 @@ jobs:
 
       - name: Stop containers
         if: always()
+
         run: |
           docker compose down
