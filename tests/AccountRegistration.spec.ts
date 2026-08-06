@@ -17,10 +17,27 @@ let registrationPage: RegistrationPage;
 let config: TestConfig;
 
 test.beforeEach(async ({ page }) => {
-    Logger.info('Initializing test configuration and navigating to app URL');
+
     config = new TestConfig();
 
-    await page.goto(config.appUrl);
+    Logger.info(`Opening application: ${config.appUrl}`);
+
+    await page.goto(config.appUrl, {
+        waitUntil: 'domcontentloaded',
+        timeout: 60000
+    });
+
+    await page.waitForLoadState('networkidle').catch(() => {
+        Logger.info('Network idle state was not reached.');
+    });
+
+    Logger.info(`Current URL: ${page.url()}`);
+
+    const title = await page.title();
+    Logger.info(`Page title: "${title}"`);
+
+    const html = await page.content();
+    Logger.info(`Page HTML (first 500 chars): ${html.substring(0, 500)}`);
 
     homePage = new HomePage(page);
     registrationPage = new RegistrationPage(page);

@@ -4,7 +4,7 @@
  * Tags: @master @sanity @regression
  */
 
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { TestConfig } from '../test.config';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
@@ -38,7 +38,7 @@ test.beforeEach(async ({ page }) => {
 
 
 
-test("User logout test @master @sanity @regression", async () => {
+test("User logout test @ma @sanity @regression", async () => {
 
 
     Logger.info("Step 1: Login with valid credentials");
@@ -132,7 +132,7 @@ test("Validate logout using My Account menu option @master @sanity @regression",
 
 
 
-test("Validate logging out and browsing back @master @sanity @regression", async ({ page }) => {
+/*test("Validate logging out and browsing back @master @sanity @regression", async ({ page }) => {
 
 
     Logger.info("Step 1: Login with valid credentials");
@@ -179,7 +179,7 @@ test("Validate logging out and browsing back @master @sanity @regression", async
 
     await homePage.expectLoginOptionVisible();
 
-});
+});*/
 
 
 

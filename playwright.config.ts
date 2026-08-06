@@ -1,7 +1,8 @@
+/// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
-  timeout: 30 * 1000,   //30000 ms(30 secs)
+  timeout: 30 * 1000,
   testDir: './tests',
   fullyParallel: true,
   retries: 1,
@@ -15,23 +16,29 @@ export default defineConfig({
   ],
 
   use: {
-    headless: false,
+    // Local: headed browser
+    // GitHub Actions: headless browser
+    headless: process.env.CI ? true : false,
+
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    viewport: { width: 1280, height: 720 }, 
-    ignoreHTTPSErrors: true, 
-    permissions: ['geolocation'], 
 
-    // === ДОБАВЛЕНО ДЛЯ ИСПРАВЛЕНИЯ ТЕСТА БЕЗ ИЗМЕНЕНИЯ ЕГО КОДА ===
-    launchOptions: {
-      slowMo: 500, // Замедляет каждое действие на 500 мс, убирая состояние гонки
+    viewport: {
+      width: 1280,
+      height: 720
     },
-    // =============================================================
+
+    ignoreHTTPSErrors: true,
+    permissions: ['geolocation'],
+
+    launchOptions: {
+      slowMo: 500,
+    },
   },
 
   projects: [
-   {
+    {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },

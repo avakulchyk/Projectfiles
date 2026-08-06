@@ -8,13 +8,14 @@ export class OpenCartPage {
 
   constructor(page: Page) {
     this.page = page;
+
     this.contactLink = page.getByRole('link', { name: /123456789/ });
     this.myAccountLink = page.getByRole('link', { name: 'My Account', exact: true });
     this.wishListLink = page.getByRole('link', { name: 'Wish List', exact: true });
   }
 
   async navigate() {
-    await this.page.goto('http://localhost/opencart/upload/');
+    await this.page.goto('http://localhost:8080/');
   }
 
   async getTitle(): Promise<string> {
@@ -37,15 +38,15 @@ export class OpenCartPage {
     return this.wishListLink.isVisible();
   }
 
-  async clickContactLink() {
+  async clickContactLink(): Promise<void> {
     await this.contactLink.click();
   }
 
-  async clickMyAccountLink() {
+  async clickMyAccountLink(): Promise<void> {
     await this.myAccountLink.click();
   }
 
-  async clickWishListLink() {
+  async clickWishListLink(): Promise<void> {
     await this.wishListLink.click();
   }
 }

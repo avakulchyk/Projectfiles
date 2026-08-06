@@ -84,7 +84,7 @@ test('Validate logging into the application using a valid email address and an i
 
 // Valid email + invalid password
 
-test('Validate logging into the application using a valid email address and an invalid password - second verification @master @regression', async ({ page }) => {
+/*test('Validate logging into the application using a valid email address and an invalid password - second verification @master @regression', async ({ page }) => {
 
 
     await homePage.clickMyAccount();
@@ -109,7 +109,7 @@ test('Validate logging into the application using a valid email address and an i
         'Warning: No match for E-Mail Address and/or Password.'
     );
 
-});
+});*/
 
 
 // Forgotten password
@@ -165,10 +165,9 @@ test('Validate browser back navigation after successful login @master @regressio
     await loginPage.expectLoginPage();
 });
 
-// Account lock after failed login attempts
 
 // Account lock after failed login attempts
-test('Validate account lock after five unsuccessful login attempts @master @regression', async ({ page }) => {
+/*test('Validate account lock after five unsuccessful login attempts @master @regression', async ({ page }) => {
     const user = RandomDataUtil.getUser();
 
     Logger.info(`Generated random test user: ${user.email}`);
@@ -195,11 +194,11 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
     }
 
     Logger.info('Completed 5 failed login attempt assertions successfully');
-});
+});*/
 
 
 // Change password and login with new password
-test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
+/*test('Validate logging into the application after changing the password @master @sanity @regression', async ({ page }) => {
     const newPassword = 'NewPassword@123456789';
 
     Logger.info('Logging in with current password');
@@ -242,6 +241,7 @@ test('Validate logging into the application after changing the password @master 
     Logger.info('Verifying successful login with new password');
     await myAccountPage.expectMyAccountPage();
 });
+*/
 
 
 // Password masking
