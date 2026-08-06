@@ -1,3 +1,4 @@
+# Updated workflow
 name: Playwright Tests
 
 on:
