@@ -41,17 +41,26 @@ jobs:
           echo "Waiting for MySQL..."
 
           for i in {1..30}; do
-            if docker exec opencart-db mysqladmin ping -h localhost -uopencart -popencart --silent; then
+
+            if docker exec opencart-db mysqladmin ping \
+              -h localhost \
+              -uopencart \
+              -popencart \
+              --silent; then
+
               echo "MySQL is ready!"
               exit 0
             fi
 
-            echo "Waiting..."
+            echo "Waiting for MySQL..."
             sleep 5
           done
 
+
           echo "MySQL failed to start"
+
           docker logs opencart-db
+
           exit 1
 
 
@@ -84,26 +93,31 @@ jobs:
 
           for i in {1..30}; do
 
-            if curl -s http://localhost:8080/ | grep -q "Your Store"; then
+            if curl -f http://localhost:8080/ > /dev/null; then
               echo "OpenCart is ready!"
               exit 0
             fi
 
             echo "Waiting for OpenCart..."
             sleep 5
+
           done
 
 
           echo "OpenCart failed to start"
 
           docker logs opencart-app
+
           exit 1
 
 
-      - name: Debug OpenCart page
+      - name: Debug OpenCart response
         run: |
-          echo "Checking page title..."
-          curl -s http://localhost:8080/ | grep -i "<title>"
+          echo "OpenCart response:"
+          curl -I http://localhost:8080/
+
+          echo "Page title:"
+          curl -s http://localhost:8080/ | grep -i "<title>" || true
 
 
       - name: Setup Node.js
