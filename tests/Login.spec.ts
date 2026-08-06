@@ -45,7 +45,6 @@ test.afterEach(async ({ page }) => {
 // -----------------------------------------------------
 // Valid login
 // -----------------------------------------------------
-
 test('User login test @master @sanity @regression', async ({ page }) => {
 
     await homePage.clickMyAccount();
