@@ -62,7 +62,7 @@ test('User registration test with mandatory fields @master @sanity @regression',
     await registrationPage.clickContinue();
 
     Logger.info('Verifying account creation confirmation message');
-    const confirmationMsg = await registrationPage.getConfirmationMsg();
+    const confirmationMsg = await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
     expect(confirmationMsg).toContain('Your Account Has Been Created!');
 });
 
@@ -86,8 +86,8 @@ test('User registration with newsletter subscription @master @sanity @regression
     await registrationPage.clickContinue();
 
     Logger.info('Verifying account creation confirmation message');
-    const confirmationMsg = await registrationPage.getConfirmationMsg();
-    expect(confirmationMsg).toContain('Your Account Has Been Created!');
+    // Using Playwright web-first assertion to wait for page redirect and DOM update (prevents race conditions)
+    await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
 });
 
 test('Validate empty Register Account form @regression', async () => {
@@ -123,7 +123,7 @@ test('Register with existing email shows error @regression', async ({ page }) =>
     await registrationPage.setPrivacyPolicy();
     await registrationPage.clickContinue();
 
-    const confirmationMsg = await registrationPage.getConfirmationMsg();
+    const confirmationMsg = await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
     expect(confirmationMsg).toContain('Your Account Has Been Created!');
 
     Logger.info('Logging out newly registered user');
