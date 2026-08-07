@@ -226,57 +226,54 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 // Change password
 // -----------------------------------------------------
 
-test('Validate login after changing password @master @sanity @regression', async ({ page }) => {
+test('Validate login after changing password @master @sanity @regression', async ({ page, context }) => {
 
-
+    // 1. Navigate to the Login Page
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-
+    // 2. Perform initial login with current credentials
     await loginPage.login(
         config.changePasswordEmail,
         config.changePassword
     );
 
-
+    // Verify user successfully landed on My Account page
     await myAccountPage.expectMyAccountPage();
 
-
-    const changePasswordPage =
-        await myAccountPage.clickChangePassword();
-
-
+    // 3. Open Change Password page
+    const changePasswordPage = await myAccountPage.clickChangePassword();
     await changePasswordPage.expectChangePasswordPage();
 
+    // 4. Submit new password
+    await changePasswordPage.changePassword(config.newPassword);
 
-    await changePasswordPage.changePassword(
-        config.newPassword
-    );
+    // CRITICAL FOR CI: Wait for server success message to prevent race condition.
+    // This ensures the backend database finished updating the password hash before logging out.
+    await expect(page.locator('.alert-success')).toBeVisible();
 
-
+    // 5. Logout from the account
     await homePage.clickMyAccount();
-
-
-    const logoutPage =
-        await myAccountPage.clickLogout();
-
-
+    const logoutPage = await myAccountPage.clickLogout();
     await logoutPage.expectLogoutPage();
 
+    // CI FIX: Clear cookies to remove active session tokens and force a clean re-authentication state
+    await context.clearCookies();
 
+    // 6. Navigate back to Login Page
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-
+    // 7. Login with the NEW password
     await loginPage.login(
         config.changePasswordEmail,
         config.newPassword
     );
 
-
+    // 8. Assert successful login with new password
     await myAccountPage.expectMyAccountPage();
-
 });
+
 
 
 // -----------------------------------------------------

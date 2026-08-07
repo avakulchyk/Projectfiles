@@ -1,25 +1,29 @@
 /// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 
+const isCI = !!process.env.CI;
+
 export default defineConfig({
   timeout: 30 * 1000,
   testDir: './tests',
-  fullyParallel: true,
-  retries: 1,
-  workers: 1,
+  
+  // В CI лучше выключать fullyParallel, если тесты используют одну БД / общих пользователей
+  fullyParallel: !isCI,
+  
+  // Если тесты не атомарны и меняют состояние пользователей в БД, retries в CI нужно аккуратно контролировать
+  retries: isCI ? 1 : 0,
+  workers: isCI ? 1 : undefined,
 
   reporter: [
-    ['html'],
+    ['html', { open: 'never' }],
     ['allure-playwright'],
-    ['dot'],
     ['list']
   ],
 
   use: {
-    // Local: headed browser
-    // GitHub Actions: headless browser
-    headless: process.env.CI ? true : false,
+    headless: isCI,
 
+    // Сохраняем трейсы при ретраях для отладки
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -32,9 +36,8 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
     permissions: ['geolocation'],
 
-    launchOptions: {
-      slowMo: 500,
-    },
+    // slowMo нужен только локально для визуального контроля
+    launchOptions: isCI ? {} : { slowMo: 500 },
   },
 
   projects: [

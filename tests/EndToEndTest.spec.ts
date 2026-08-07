@@ -88,7 +88,7 @@ async function performRegistration(page: Page): Promise<string> {
     await registrationPage.clickContinue();     // Submit the registration form
 
     Logger.info('Verifying registration success confirmation message');
-    const confirmationMsg = await registrationPage.getConfirmationMsg();
+    const confirmationMsg = await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
     expect(confirmationMsg).toContain('Your Account Has Been Created!');
 
     return email; // Return the email for later use in login
