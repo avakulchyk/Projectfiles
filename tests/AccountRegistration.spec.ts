@@ -17,27 +17,10 @@ let registrationPage: RegistrationPage;
 let config: TestConfig;
 
 test.beforeEach(async ({ page }) => {
-
+    Logger.info('Initializing test configuration and navigating to app URL');
     config = new TestConfig();
 
-    Logger.info(`Opening application: ${config.appUrl}`);
-
-    await page.goto(config.appUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: 60000
-    });
-
-    await page.waitForLoadState('networkidle').catch(() => {
-        Logger.info('Network idle state was not reached.');
-    });
-
-    Logger.info(`Current URL: ${page.url()}`);
-
-    const title = await page.title();
-    Logger.info(`Page title: "${title}"`);
-
-    const html = await page.content();
-    Logger.info(`Page HTML (first 500 chars): ${html.substring(0, 500)}`);
+    await page.goto(config.appUrl);
 
     homePage = new HomePage(page);
     registrationPage = new RegistrationPage(page);
@@ -62,7 +45,7 @@ test('User registration test with mandatory fields @master @sanity @regression',
     await registrationPage.clickContinue();
 
     Logger.info('Verifying account creation confirmation message');
-    const confirmationMsg = await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
+    const confirmationMsg = await registrationPage.getConfirmationMsg();
     expect(confirmationMsg).toContain('Your Account Has Been Created!');
 });
 
@@ -86,8 +69,8 @@ test('User registration with newsletter subscription @master @sanity @regression
     await registrationPage.clickContinue();
 
     Logger.info('Verifying account creation confirmation message');
-    // Using Playwright web-first assertion to wait for page redirect and DOM update (prevents race conditions)
-    await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
+    const confirmationMsg = await registrationPage.getConfirmationMsg();
+    expect(confirmationMsg).toContain('Your Account Has Been Created!');
 });
 
 test('Validate empty Register Account form @regression', async () => {
@@ -123,7 +106,7 @@ test('Register with existing email shows error @regression', async ({ page }) =>
     await registrationPage.setPrivacyPolicy();
     await registrationPage.clickContinue();
 
-    const confirmationMsg = await registrationPage.getConfirmationMsg('Your Account Has Been Created!');
+    const confirmationMsg = await registrationPage.getConfirmationMsg();
     expect(confirmationMsg).toContain('Your Account Has Been Created!');
 
     Logger.info('Logging out newly registered user');

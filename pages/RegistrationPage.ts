@@ -337,7 +337,7 @@ async expectMandatoryFieldsMarked(): Promise<void> {
   // Getters
   // ======================
 
-  async getConfirmationMsg(p0: string): Promise<string> {
+  async getConfirmationMsg(): Promise<string> {
     return (
       await this.confirmationMsg.textContent()
     )?.trim() ?? '';

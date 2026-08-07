@@ -33,7 +33,7 @@ export class LoginPage {
 
         // Error messages
         this.txtErrorMessage = page.locator(
-            '.alert.alert-danger'
+            '.alert.alert-danger, #alert, .alert-dismissible'
         );
 
 
@@ -190,7 +190,7 @@ export class LoginPage {
         message: string
     ): Promise<void> {
 
-        await expect(this.txtErrorMessage)
+        await expect(this.txtErrorMessage.first())
             .toContainText(message);
     }
 
@@ -201,7 +201,7 @@ export class LoginPage {
      */
     async expectSessionExpiredMessage(): Promise<void> {
 
-        await expect(this.txtErrorMessage)
+        await expect(this.txtErrorMessage.first())
             .toContainText(
                 'Invalid token session. Please login again!'
             );
@@ -219,7 +219,26 @@ export class LoginPage {
      */
     async getLoginErrorMessage(): Promise<string | null> {
 
-        return await this.txtErrorMessage.textContent();
+        return await this.txtErrorMessage.first().textContent();
+    }
+
+
+
+    /**
+     * Safely retrieves top warning message without throwing exceptions if omitted
+     */
+    async getWarningMsg(): Promise<string> {
+
+        const isVisible = await this.txtErrorMessage.first()
+            .isVisible()
+            .catch(() => false);
+
+        if (isVisible) {
+            const text = await this.txtErrorMessage.first().textContent();
+            return text?.trim() ?? '';
+        }
+
+        return '';
     }
 
 }

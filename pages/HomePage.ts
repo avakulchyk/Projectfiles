@@ -22,38 +22,47 @@ export class HomePage {
 
         this.page = page;
 
+
         // My Account dropdown
         this.myAccountMenu = page.locator(
             'span:has-text("My Account")'
         );
+
 
         // Dropdown options
         this.loginOption = page.locator(
             'a[href*="route=account/login"]'
         );
 
+
         this.registerOption = page.locator(
             'a[href*="route=account/register"]'
         );
 
+
         this.logoutOption = page.locator(
             'a[href*="route=account/logout"]'
         );
+
 
         // Search
         this.searchInput = page.locator(
             'input[placeholder="Search"]'
         );
 
+
         this.searchButton = page.locator(
-            "button[class='btn btn-light btn-lg']"
-        );
+    'input[placeholder="Search"] + button'
+);
+
     }
+
 
 
     // ======================
     // Actions
     // ======================
+
 
     async clickMyAccount(): Promise<void> {
 
@@ -64,13 +73,7 @@ export class HomePage {
 
     async clickLogin(): Promise<LoginPage> {
 
-        await this.loginOption
-            .first()
-            .click();
-
-        await this.page.waitForURL(
-            /route=account\/login/
-        );
+        await this.loginOption.click();
 
         return new LoginPage(this.page);
 
@@ -84,28 +87,16 @@ export class HomePage {
     }
 
 
-    async searchProduct(productName: string): Promise<void> {
+    async searchProduct(
+        productName: string
+    ): Promise<void> {
 
         await this.searchInput.fill(productName);
 
         await this.searchButton.click();
 
-        await this.page.waitForURL(
-            /route=product\/search/
-        );
-
     }
 
-
-    async clickSearch(): Promise<void> {
-
-        await this.searchButton.click();
-
-        await this.page.waitForURL(
-            /route=product\/search/
-        );
-
-    }
 
 
     // ======================
@@ -124,6 +115,7 @@ export class HomePage {
     }
 
 
+
     /**
      * Verify Logout option is displayed
      * User is authenticated
@@ -134,6 +126,7 @@ export class HomePage {
             .toBeVisible();
 
     }
+
 
 
     /**
@@ -147,6 +140,15 @@ export class HomePage {
 
     }
 
+    /**
+ * Verify Search field placeholder
+ */
+    async expectSearchFieldPlaceholder(): Promise<void> {
+
+    await expect(this.searchInput)
+        .toHaveAttribute('placeholder', 'Search');
+
+}
 
     /**
      * Verify Login option is displayed
@@ -157,31 +159,11 @@ export class HomePage {
         await expect(this.loginOption)
             .toBeVisible();
 
+
         await expect(this.logoutOption)
             .not.toBeVisible();
 
     }
 
-
-    async expectSearchFieldEmpty(): Promise<void> {
-
-        await expect(this.searchInput)
-            .toHaveValue('');
-
-    }
-
-
-    /**
-     * Verify search field placeholder
-     */
-    async expectSearchFieldPlaceholder(): Promise<void> {
-
-        await expect(this.searchInput)
-            .toHaveAttribute(
-                'placeholder',
-                'Search'
-            );
-
-    }
-
 }
+
