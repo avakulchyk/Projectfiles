@@ -1,5 +1,4 @@
-# Updated Workflow
-name: Playwright Tests
+name: Playwright Tests - Debug
 
 on:
   workflow_dispatch:
