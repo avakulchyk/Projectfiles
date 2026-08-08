@@ -1,4 +1,4 @@
-#Updated Workflow
+# Updated Workflow
 name: Playwright Tests
 
 on:
@@ -38,7 +38,6 @@ jobs:
               -uopencart \
               -popencart \
               --silent; then
-
               echo "MySQL is ready!"
               exit 0
             fi
@@ -57,6 +56,38 @@ jobs:
             -uopencart \
             -popencart \
             opencart < opencart.sql
+
+      - name: Verify test users
+        run: |
+          echo "Checking test users..."
+
+          docker exec opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "
+              SELECT customer_id, firstname, lastname, email, date_added
+              FROM oc_customer
+              WHERE email IN (
+                'change.password@test.com',
+                'lock.test@test.com',
+                'vakulchykanastasiia@gmail.com'
+              );
+            "
+
+      - name: Check password hash before tests
+        run: |
+          echo "=== Password hash BEFORE Playwright tests ==="
+
+          docker exec opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "
+              SELECT customer_id, email, password
+              FROM oc_customer
+              WHERE email = 'change.password@test.com';
+            "
 
       - name: Verify database
         run: |
@@ -137,6 +168,21 @@ jobs:
           CI: true
         run: |
           npx playwright test
+
+      - name: Check password hash after tests
+        if: always()
+        run: |
+          echo "=== Password hash AFTER Playwright tests ==="
+
+          docker exec opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "
+              SELECT customer_id, email, password
+              FROM oc_customer
+              WHERE email = 'change.password@test.com';
+            "
 
       - name: Upload Playwright report
         if: always()
