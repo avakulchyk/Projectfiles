@@ -31,9 +31,8 @@ export class HomePage {
 
         // Dropdown options
         this.loginOption = page.locator(
-            'a[href*="route=account/login"]'
-        );
-
+    '#top .dropdown-menu a[href*="route=account/login"]'
+);
 
         this.registerOption = page.locator(
             'a[href*="route=account/register"]'

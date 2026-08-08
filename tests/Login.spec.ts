@@ -8,6 +8,7 @@ import { test, expect } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 import { LoginPage } from '../pages/LoginPage';
 import { MyAccountPage } from '../pages/MyAccountPage';
+import { LogoutPage } from '../pages/LogoutPage';
 import { TestConfig } from '../test.config';
 import { Logger } from '../utils/Logger';
 
@@ -16,6 +17,7 @@ let config: TestConfig;
 let homePage: HomePage;
 let loginPage: LoginPage;
 let myAccountPage: MyAccountPage;
+let logoutPage: LogoutPage;
 
 
 test.beforeEach(async ({ page }) => {
@@ -29,6 +31,7 @@ test.beforeEach(async ({ page }) => {
     homePage = new HomePage(page);
     loginPage = new LoginPage(page);
     myAccountPage = new MyAccountPage(page);
+    logoutPage = new LogoutPage(page);
 
 });
 
@@ -229,53 +232,69 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 // Change password
 // -----------------------------------------------------
 
-/*test('Validate login after changing password @master @sanity @regression', async ({ page, context }) => {
 
-    // 1. Navigate to the Login Page
+test('Validate login after changing password @master @sanity @regression', async ({
+    page,
+    context
+}) => {
+
+    // 1. Open Login page
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    // 2. Perform initial login with current credentials
+    // 2. Login with current password
     await loginPage.login(
         config.changePasswordEmail,
         config.changePassword
     );
 
-    // Verify user successfully landed on My Account page
+    // Verify successful login
     await myAccountPage.expectMyAccountPage();
 
     // 3. Open Change Password page
     const changePasswordPage = await myAccountPage.clickChangePassword();
+
     await changePasswordPage.expectChangePasswordPage();
 
-    // 4. Submit new password
+    // 4. Change password
     await changePasswordPage.changePassword(config.newPassword);
 
-    // CRITICAL FOR CI: Wait for server success message to prevent race condition.
-    // This ensures the backend database finished updating the password hash before logging out.
-    await expect(page.locator('.alert-success')).toBeVisible();
+    // Wait until password has been changed successfully
+    await expect(page.locator('.alert-success')).toBeVisible({
+        timeout: 10000
+    });
 
-    // 5. Logout from the account
-    await homePage.clickMyAccount();
-    const logoutPage = await myAccountPage.clickLogout();
+    // 5. Logout
+    await myAccountPage.clickLogout();
+
+    // Verify logout page
     await logoutPage.expectLogoutPage();
 
-    // CI FIX: Clear cookies to remove active session tokens and force a clean re-authentication state
+    // 6. Clear cookies
     await context.clearCookies();
 
-    // 6. Navigate back to Login Page
+    // 7. Return to Home page
+    await page.goto(config.appUrl);
+
+    // 8. Open Login page again
     await homePage.clickMyAccount();
     await homePage.clickLogin();
 
-    // 7. Login with the NEW password
+    // 9. Login with NEW password
     await loginPage.login(
         config.changePasswordEmail,
         config.newPassword
     );
 
-    // 8. Assert successful login with new password
+    // 10. Verify successful login
     await myAccountPage.expectMyAccountPage();
-});*/
+});
+
+
+
+
+
+
 
 
 
