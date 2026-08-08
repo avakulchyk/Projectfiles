@@ -13,6 +13,7 @@ export class LoginPage {
     private readonly btnLogin: Locator;
     private readonly txtErrorMessage: Locator;
     private readonly lnkForgottenPassword: Locator;
+    private readonly loginLockMessage: Locator;
 
 
     constructor(page: Page) {
@@ -41,6 +42,11 @@ export class LoginPage {
         this.lnkForgottenPassword = page.locator(
             "#form-login div[class='mb-3'] a"
         );
+
+        this.loginLockMessage = page.locator(
+        '.alert.alert-danger').filter({
+        hasText: 'Your account has exceeded allowed number of login attempts'
+    });
     }
 
 
@@ -206,6 +212,16 @@ export class LoginPage {
                 'Invalid token session. Please login again!'
             );
     }
+
+    async expectAccountLockMessage(): Promise<void> {
+    await expect(this.loginLockMessage)
+        .toBeVisible();
+
+    await expect(this.loginLockMessage)
+        .toContainText(
+            'Your account has exceeded allowed number of login attempts. Please try again in 1 hour.'
+        );
+}
 
 
 

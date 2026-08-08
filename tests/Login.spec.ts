@@ -207,8 +207,9 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
             wrongPassword
         );
 
-        // Check if the account was already locked in prior iterations or runs
+        // Check if the account was already locked
         const warningText = await loginPage.getWarningMsg();
+
         if (warningText.includes('exceeded allowed number')) {
             Logger.info(
                 'Account lock limit reached'
@@ -217,14 +218,8 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
         }
     }
 
-    // Final assertion checking for the lock message
-    await loginPage.expectLoginErrorMessage(
-        'exceeded allowed number'
-    );
-
-    Logger.info(
-        'Account lock scenario completed'
-    );
+    // Verify that the account is locked
+    await loginPage.expectAccountLockMessage();
 });
 
 
@@ -235,61 +230,100 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 
 test('Validate login after changing password @master @sanity @regression', async ({
     page,
-    context
 }) => {
 
-    // 1. Open Login page
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
+    const originalPassword = config.changePassword;
+    const newPassword = config.newPassword;
 
-    // 2. Login with current password
-    await loginPage.login(
-        config.changePasswordEmail,
-        config.changePassword
-    );
+    try {
+        // 1. Open Login page
+        await homePage.clickMyAccount();
+        await homePage.clickLogin();
 
-    // Verify successful login
-    await myAccountPage.expectMyAccountPage();
+        // 2. Login with original password
+        await loginPage.login(
+            config.changePasswordEmail,
+            originalPassword
+        );
 
-    // 3. Open Change Password page
-    const changePasswordPage = await myAccountPage.clickChangePassword();
+        await myAccountPage.expectMyAccountPage();
 
-    await changePasswordPage.expectChangePasswordPage();
+        // 3. Open Change Password page
+        const changePasswordPage =
+            await myAccountPage.clickChangePassword();
 
-    // 4. Change password
-    await changePasswordPage.changePassword(config.newPassword);
+        await changePasswordPage.expectChangePasswordPage();
 
-    // Wait until password has been changed successfully
-    await expect(page.locator('.alert-success')).toBeVisible({
-        timeout: 10000
-    });
+        // 4. Change password to NEW password
+        await changePasswordPage.changePassword(newPassword);
 
-    // 5. Logout
-    await myAccountPage.clickLogout();
+        // Verify password was changed
+        await expect(page.locator('.alert-success')).toBeVisible({
+            timeout: 10000
+        });
 
-    // Verify logout page
-    await logoutPage.expectLogoutPage();
+        // 5. Logout
+        await myAccountPage.clickLogout();
+        await logoutPage.expectLogoutPage();
 
-    // 6. Clear cookies
-    await context.clearCookies();
+        // 6. Open Login page again
+        await homePage.clickMyAccount();
+        await homePage.clickLogin();
 
-    // 7. Return to Home page
-    await page.goto(config.appUrl);
+        // 7. Login with NEW password
+        await loginPage.login(
+            config.changePasswordEmail,
+            newPassword
+        );
 
-    // 8. Open Login page again
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
+        // 8. Verify successful login
+        await myAccountPage.expectMyAccountPage();
 
-    // 9. Login with NEW password
-    await loginPage.login(
-        config.changePasswordEmail,
-        config.newPassword
-    );
+    } finally {
 
-    // 10. Verify successful login
-    await myAccountPage.expectMyAccountPage();
+        // ==========================================
+        // Restore ORIGINAL password
+        // ==========================================
+
+        // Logout if we are still logged in
+        try {
+            await myAccountPage.clickLogout();
+            await logoutPage.expectLogoutPage();
+        } catch {
+            // Already logged out
+        }
+
+        // Open Login page
+        await homePage.clickMyAccount();
+        await homePage.clickLogin();
+
+        // Login with NEW password
+        await loginPage.login(
+            config.changePasswordEmail,
+            newPassword
+        );
+
+        await myAccountPage.expectMyAccountPage();
+
+        // Open Change Password page
+        const restorePasswordPage =
+            await myAccountPage.clickChangePassword();
+
+        await restorePasswordPage.expectChangePasswordPage();
+
+        // Restore ORIGINAL password
+        await restorePasswordPage.changePassword(originalPassword);
+
+        // Verify password was restored
+        await expect(page.locator('.alert-success')).toBeVisible({
+            timeout: 10000
+        });
+
+        // Logout after cleanup
+        await myAccountPage.clickLogout();
+        await logoutPage.expectLogoutPage();
+    }
 });
-
 
 
 

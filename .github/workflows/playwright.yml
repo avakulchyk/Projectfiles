@@ -1,11 +1,13 @@
-# Updated workflow
+#Updated Workflow
 name: Playwright Tests
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -20,7 +22,7 @@ jobs:
 
       - name: Start Docker containers
         run: |
-          docker compose up -d
+          docker compose up -d --build
 
       - name: Check Docker containers
         run: |
