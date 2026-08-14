@@ -205,8 +205,6 @@ test('Validate browser back navigation after successful login @master @regressio
 // Change password
 // -----------------------------------------------------
 
-
-
 test('Validate login after changing password @master @sanity @regression', async ({
     page,
     context,
