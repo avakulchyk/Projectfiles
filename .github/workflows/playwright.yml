@@ -67,7 +67,7 @@ jobs:
               FROM oc_customer
               WHERE email IN (
                 'change.password@test.com',
-                'lock.test@test.com',
+                'lock1.test@test.com',
                 'vakulchykanastasiia@gmail.com'
               );
             "
@@ -98,7 +98,6 @@ jobs:
 
           echo "Database is ready!"
 
-      # Reset account lock state before Playwright tests
       - name: Reset account lock state
         run: |
           echo "Checking customer login table..."
@@ -109,7 +108,7 @@ jobs:
             opencart \
             -e "SHOW TABLES LIKE 'oc_customer_login';"
 
-          echo "Resetting failed login attempts for lock.test@test.com..."
+          echo "Resetting failed login attempts for lock1.test@test.com..."
 
           docker exec opencart-db mysql \
             -uopencart \
@@ -117,7 +116,7 @@ jobs:
             opencart \
             -e "
               DELETE FROM oc_customer_login
-              WHERE email = 'lock.test@test.com';
+              WHERE email = 'lock1.test@test.com';
             "
 
           echo "Account lock state reset!"

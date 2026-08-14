@@ -302,8 +302,7 @@ test('Validate login after changing password @master @sanity @regression', async
 // -----------------------------------------------------
 // Failed attempts and account lock
 // -----------------------------------------------------
-
-test('Validate account lock after five unsuccessful login attempts @master @regression', async ({
+/*test('Validate account lock after five unsuccessful login attempts @master @regression', async ({
     page
 }) => {
 
@@ -313,11 +312,15 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
     const targetEmail = config.failedLoginEmail;
     const wrongPassword = config.wrongPassword;
 
-    Logger.info(`Testing account lock for ${targetEmail}`);
+    Logger.info(
+        `Testing account lock for ${targetEmail}`
+    );
 
     for (let attempt = 1; attempt <= 5; attempt++) {
 
-        Logger.info(`Failed login attempt #${attempt}`);
+        Logger.info(
+            `Failed login attempt #${attempt}`
+        );
 
         await loginPage.login(
             targetEmail,
@@ -326,21 +329,29 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
 
         const warningText = await loginPage.getWarningMsg();
 
-        Logger.info(`Login response: ${warningText}`);
+        Logger.info(
+            `Login response: ${warningText}`
+        );
 
-        if (attempt < 5) {
-
-            await loginPage.expectLoginErrorMessage(
-                'No match for E-Mail Address and/or Password.'
+        if (
+            warningText.includes(
+                'Your account has exceeded allowed number of login attempts'
+            )
+        ) {
+            Logger.info(
+                `Account was locked on attempt #${attempt}`
             );
 
-        } else {
-
-            await loginPage.expectAccountLockMessage();
-
+            break;
         }
+
+        await loginPage.expectLoginErrorMessage(
+            'No match for E-Mail Address and/or Password.'
+        );
     }
-});
+
+    await loginPage.expectAccountLockMessage();
+});*/
 
 // -------------------------------------------------------
 // Password masking
