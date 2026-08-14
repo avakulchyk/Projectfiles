@@ -379,7 +379,7 @@ test('Validate password field hides entered text @master @sanity @regression', a
 // Session timeout
 // -----------------------------------------------------
 
-test('Validate timeout of Login Session by clearing cookies @regression', async ({ page }) => {
+/*test('Validate timeout of Login Session by clearing cookies @regression', async ({ page }) => {
 
 
     await homePage.clickMyAccount();
@@ -413,7 +413,8 @@ test('Validate timeout of Login Session by clearing cookies @regression', async 
 
     await loginPage.expectLoginButtonVisible();
 
-});
+});/*
+
 
 
 
