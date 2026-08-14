@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
 
   push:
-    branches:
-      - main
 
   pull_request:
     branches:
@@ -16,16 +14,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout
+      # -----------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # -----------------------------
+      # Docker
+      # -----------------------------
+
       - name: Start Docker containers
-        run: |
-          docker compose up -d --build
+        run: docker compose up -d --build
 
       - name: Check Docker containers
-        run: |
-          docker compose ps
+        run: docker compose ps
+
+      # -----------------------------
+      # MySQL
+      # -----------------------------
 
       - name: Wait for MySQL
         run: |
@@ -49,12 +57,43 @@ jobs:
           docker logs opencart-db
           exit 1
 
+      # -----------------------------
+      # Database
+      # -----------------------------
+
       - name: Import database
         run: |
+          echo "Importing OpenCart database..."
+
           docker exec -i opencart-db mysql \
             -uopencart \
             -popencart \
             opencart < opencart.sql
+
+          echo "OpenCart database imported!"
+
+      - name: Import test data
+        run: |
+          echo "Importing test users..."
+
+          docker exec -i opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart < test-data.sql
+
+          echo "Test users imported!"
+
+      - name: Verify database
+        run: |
+          echo "Checking OpenCart database..."
+
+          docker exec opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "SHOW TABLES;" | grep oc_store
+
+          echo "Database is ready!"
 
       - name: Verify test users
         run: |
@@ -68,11 +107,25 @@ jobs:
               SELECT customer_id, firstname, lastname, email, date_added
               FROM oc_customer
               WHERE email IN (
-                'change.password@test.com',
-                'lock.test@test.com',
-                'vakulchykanastasiia@gmail.com'
+                'change1.password@test.com',
+                'lock1.test@test.com'
               );
             "
+
+      - name: Reset account lock state
+        run: |
+          echo "Resetting failed login attempts..."
+
+          docker exec opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart \
+            -e "
+              DELETE FROM oc_customer_login
+              WHERE email = 'lock1.test@test.com';
+            "
+
+          echo "Account lock state reset!"
 
       - name: Check password hash before tests
         run: |
@@ -85,20 +138,12 @@ jobs:
             -e "
               SELECT customer_id, email, password
               FROM oc_customer
-              WHERE email = 'change.password@test.com';
+              WHERE email = 'change1.password@test.com';
             "
 
-      - name: Verify database
-        run: |
-          echo "Checking OpenCart database..."
-
-          docker exec opencart-db mysql \
-            -uopencart \
-            -popencart \
-            opencart \
-            -e "SHOW TABLES;" | grep oc_store
-
-          echo "Database is ready!"
+      # -----------------------------
+      # OpenCart permissions
+      # -----------------------------
 
       - name: Fix OpenCart permissions
         run: |
@@ -123,12 +168,16 @@ jobs:
         run: |
           docker exec opencart-app ls -la /var/www/html
 
+      # -----------------------------
+      # Wait for OpenCart
+      # -----------------------------
+
       - name: Wait for OpenCart
         run: |
           echo "Waiting for OpenCart..."
 
           for i in {1..30}; do
-            TITLE=$(curl -s http://localhost:8080/ | grep -i "<title>")
+            TITLE=$(curl -s http://localhost:8080/ | grep -i "<title>" || true)
 
             echo "Current title: $TITLE"
 
@@ -148,25 +197,77 @@ jobs:
 
           exit 1
 
+      # -----------------------------
+      # Check Login page
+      # -----------------------------
+
+      - name: Check OpenCart Login page
+        run: |
+          echo "======================================"
+          echo "Checking OpenCart Login page"
+          echo "======================================"
+
+          echo "=== Login page headers ==="
+
+          curl -I \
+            "http://localhost:8080/index.php?route=account/login"
+
+          echo ""
+          echo "=== Checking email input ==="
+
+          curl -s \
+            "http://localhost:8080/index.php?route=account/login" \
+            | grep -E 'input-email'
+
+          echo ""
+          echo "=== Checking password input ==="
+
+          curl -s \
+            "http://localhost:8080/index.php?route=account/login" \
+            | grep -E 'input-password'
+
+          echo ""
+          echo "=== Login page is available ==="
+
+      # -----------------------------
+      # Node.js
+      # -----------------------------
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+          cache: npm
+
+      - name: Check Node and npm versions
+        run: |
+          node --version
+          npm --version
+
+      # -----------------------------
+      # Dependencies
+      # -----------------------------
 
       - name: Install dependencies
-        run: |
-          npm ci
+        run: npm ci
 
       - name: Install Playwright browsers
-        run: |
-          npx playwright install --with-deps
+        run: npx playwright install --with-deps
+
+      # -----------------------------
+      # Playwright
+      # -----------------------------
 
       - name: Run Playwright tests
         env:
           BASE_URL: http://localhost:8080/
           CI: true
         run: |
-          npx playwright test
+          npx playwright test --workers=1
+
+      # -----------------------------
+      # Debug database after tests
+      # -----------------------------
 
       - name: Check password hash after tests
         if: always()
@@ -180,8 +281,12 @@ jobs:
             -e "
               SELECT customer_id, email, password
               FROM oc_customer
-              WHERE email = 'change.password@test.com';
+              WHERE email = 'change1.password@test.com';
             "
+
+      # -----------------------------
+      # Artifacts
+      # -----------------------------
 
       - name: Upload Playwright report
         if: always()
@@ -189,6 +294,8 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload test results
         if: always()
@@ -196,6 +303,12 @@ jobs:
         with:
           name: test-results
           path: test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # -----------------------------
+      # Logs on failure
+      # -----------------------------
 
       - name: Show Docker logs on failure
         if: failure()
@@ -206,7 +319,13 @@ jobs:
           echo "=== MySQL logs ==="
           docker logs opencart-db
 
+          echo "=== Docker containers ==="
+          docker compose ps
+
+      # -----------------------------
+      # Cleanup
+      # -----------------------------
+
       - name: Stop containers
         if: always()
-        run: |
-          docker compose down
+        run: docker compose down

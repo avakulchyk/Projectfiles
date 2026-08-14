@@ -10,12 +10,12 @@ export class TestConfig {
 
 
     // User for change password test
-    changePasswordEmail = "change.password@test.com";
-    changePassword = "Newtest4"
-    newPassword = "Newtest5";
+    changePasswordEmail = "change1.password@test.com";
+    changePassword = "Newpassword6"
+    newPassword = "Newpassword7";
 
     // User for account lock test
-    failedLoginEmail = "lock.test@test.com";
+    failedLoginEmail = "lock1.test@test.com";
     wrongPassword = "WrongPassword123";
 
 

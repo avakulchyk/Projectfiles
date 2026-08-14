@@ -145,6 +145,26 @@ test('Validate Login page placeholders @master @regression', async () => {
 
 });
 
+// -----------------------------------------------------
+// Logout options
+// -----------------------------------------------------
+
+test('Validate Logout option is not displayed under Right Column before logging in @sanity @regression', async ({ page }) => {
+
+    await homePage.clickMyAccount();
+
+    await homePage.expectLogoutNotDisplayed();
+
+});
+
+test('Validate Logout option is not displayed under My Account menu before logging in @sanity @regression', async ({ page }) => {
+
+    await homePage.clickMyAccount();
+
+    await homePage.expectLogoutNotDisplayed();
+
+});
+
 
 // -----------------------------------------------------
 // Browser back after login
@@ -180,73 +200,12 @@ test('Validate browser back navigation after successful login @master @regressio
 });
 
 
-// -----------------------------------------------------
-// Account lock after five failed attempts
-// -----------------------------------------------------
-
-
-test('Validate account lock after five unsuccessful login attempts @master @regression', async ({
-    page
-}) => {
-
-    await homePage.clickMyAccount();
-    await homePage.clickLogin();
-
-    const targetEmail = config.failedLoginEmail;
-    const wrongPassword = config.wrongPassword;
-
-    Logger.info(
-        `Testing account lock for ${targetEmail}`
-    );
-
-    for (let attempt = 1; attempt <= 5; attempt++) {
-
-        Logger.info(
-            `Failed login attempt #${attempt}`
-        );
-
-        await loginPage.login(
-            targetEmail,
-            wrongPassword
-        );
-
-        const warningText = await loginPage.getWarningMsg();
-
-        Logger.info(
-            `Login response: ${warningText}`
-        );
-
-        if (
-            warningText.includes(
-                'Your account has exceeded allowed number of login attempts'
-            )
-        ) {
-            Logger.info(
-                `Account was locked on attempt #${attempt}`
-            );
-
-            break;
-        }
-
-        await loginPage.expectLoginErrorMessage(
-            'No match for E-Mail Address and/or Password.'
-        );
-    }
-
-    await loginPage.expectAccountLockMessage();
-});
-
-
-
 
 // -----------------------------------------------------
-// Change password
+// Changing password
 // -----------------------------------------------------
 
-
-
-
-/*test('Validate login after changing password @master @sanity @regression', async ({
+test('Validate login after changing password @master @sanity @regression', async ({
     page,
     context,
 }) => {
@@ -336,14 +295,65 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
     await myAccountPage.expectMyAccountPage();
 
     console.log('Login with NEW password successful');
-});*/
-
-
-
+});
 
 // -----------------------------------------------------
+// Failed attempts and account lock
+// -----------------------------------------------------
+test('Validate account lock after five unsuccessful login attempts @master @regression', async ({
+    page
+}) => {
+
+    await homePage.clickMyAccount();
+    await homePage.clickLogin();
+
+    const targetEmail = config.failedLoginEmail;
+    const wrongPassword = config.wrongPassword;
+
+    Logger.info(
+        `Testing account lock for ${targetEmail}`
+    );
+
+    for (let attempt = 1; attempt <= 5; attempt++) {
+
+        Logger.info(
+            `Failed login attempt #${attempt}`
+        );
+
+        await loginPage.login(
+            targetEmail,
+            wrongPassword
+        );
+
+        const warningText = await loginPage.getWarningMsg();
+
+        Logger.info(
+            `Login response: ${warningText}`
+        );
+
+        if (
+            warningText.includes(
+                'Your account has exceeded allowed number of login attempts'
+            )
+        ) {
+            Logger.info(
+                `Account was locked on attempt #${attempt}`
+            );
+
+            break;
+        }
+
+        await loginPage.expectLoginErrorMessage(
+            'No match for E-Mail Address and/or Password.'
+        );
+    }
+
+    await loginPage.expectAccountLockMessage();
+});
+
+// -------------------------------------------------------
 // Password masking
-// -----------------------------------------------------
+// -------------------------------------------------------
 
 test('Validate password field hides entered text @master @sanity @regression', async ({ page }) => {
 
@@ -401,6 +411,7 @@ test('Validate timeout of Login Session by clearing cookies @regression', async 
     await loginPage.expectLoginButtonVisible();
 
 });
+
 
 
 
