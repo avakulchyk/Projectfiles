@@ -205,7 +205,7 @@ test('Validate browser back navigation after successful login @master @regressio
 // Change password
 // -----------------------------------------------------
 
-/*test('Validate login after changing password @master @sanity @regression', async ({
+test('Validate login after changing password @master @sanity @regression', async ({
     page,
     context,
 }) => {
@@ -295,7 +295,7 @@ test('Validate browser back navigation after successful login @master @regressio
     await myAccountPage.expectMyAccountPage();
 
     console.log('Login with NEW password successful');
-});*/
+});
 
 // -----------------------------------------------------
 // Failed attempts and account lock

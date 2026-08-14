@@ -14,6 +14,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -----------------------------
+      # Checkout
+      # -----------------------------
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -59,10 +63,25 @@ jobs:
 
       - name: Import database
         run: |
+          echo "Importing OpenCart database..."
+
           docker exec -i opencart-db mysql \
             -uopencart \
             -popencart \
             opencart < opencart.sql
+
+          echo "OpenCart database imported!"
+
+      - name: Import test data
+        run: |
+          echo "Importing test users..."
+
+          docker exec -i opencart-db mysql \
+            -uopencart \
+            -popencart \
+            opencart < test-data.sql
+
+          echo "Test users imported!"
 
       - name: Verify database
         run: |
@@ -89,8 +108,7 @@ jobs:
               FROM oc_customer
               WHERE email IN (
                 'change1.password@test.com',
-                'lock1.test@test.com',
-                'vakulchykanastasiia@gmail.com'
+                'lock1.test@test.com'
               );
             "
 
@@ -180,7 +198,7 @@ jobs:
           exit 1
 
       # -----------------------------
-      # CHECK LOGIN PAGE
+      # Check Login page
       # -----------------------------
 
       - name: Check OpenCart Login page
