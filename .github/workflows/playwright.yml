@@ -66,7 +66,7 @@ jobs:
               SELECT customer_id, firstname, lastname, email, date_added
               FROM oc_customer
               WHERE email IN (
-                'change.password@test.com',
+                'change1.password@test.com',
                 'lock1.test@test.com',
                 'vakulchykanastasiia@gmail.com'
               );
@@ -83,7 +83,7 @@ jobs:
             -e "
               SELECT customer_id, email, password
               FROM oc_customer
-              WHERE email = 'change.password@test.com';
+              WHERE email = 'change1.password@test.com';
             "
 
       - name: Verify database
@@ -202,7 +202,7 @@ jobs:
             -e "
               SELECT customer_id, email, password
               FROM oc_customer
-              WHERE email = 'change.password@test.com';
+              WHERE email = 'change1.password@test.com';
             "
 
       - name: Upload Playwright report
