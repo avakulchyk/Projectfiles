@@ -354,9 +354,9 @@ test('Validate account lock after five unsuccessful login attempts @master @regr
     await loginPage.expectAccountLockMessage();
 });
 
-// -----------------------------------------------------
+// -------------------------------------------------------
 // Password masking
-// -----------------------------------------------------
+// -------------------------------------------------------
 
 test('Validate password field hides entered text @master @sanity @regression', async ({ page }) => {
 
@@ -379,7 +379,7 @@ test('Validate password field hides entered text @master @sanity @regression', a
 // Session timeout
 // -----------------------------------------------------
 
-/*test('Validate timeout of Login Session by clearing cookies @regression', async ({ page }) => {
+test('Validate timeout of Login Session by clearing cookies @regression', async ({ page }) => {
 
 
     await homePage.clickMyAccount();
@@ -413,7 +413,7 @@ test('Validate password field hides entered text @master @sanity @regression', a
 
     await loginPage.expectLoginButtonVisible();
 
-});/*
+});
 
 
 
