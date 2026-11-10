@@ -13,10 +13,62 @@ Before running the project, make sure you have the following software installed 
 Follow these three simple steps to launch the website locally:
 
 ### 1. Clone the Repository
-Open your terminal and run the following commands to clone the project and navigate into its directory:
+
+Open your terminal (Terminal on macOS/Linux or Git Bash on Windows).
+
+First, navigate to the directory where you want to store the project. For example:
+
 ```bash
-git clone https://github.com
-cd YOUR_REPOSITORY_NAME
+cd ~/Documents
+```
+
+Clone the repository from GitHub by running the following command:
+
+```bash
+git clone https://github.com/avakulchyk/Projectfiles.git
+```
+
+This command downloads the repository and creates a local folder named `Projectfiles`.
+
+Navigate into the project directory:
+
+```bash
+cd Projectfiles
+```
+
+Verify that the repository was cloned successfully:
+
+```bash
+git status
+```
+
+You should see output similar to:
+
+```text
+On branch main
+Your branch is up to date with 'origin/main'.
+
+nothing to commit, working tree clean
+```
+
+To check the project files, run:
+
+```bash
+ls
+```
+
+**Optional: Open the project in Visual Studio Code**
+
+If you have VS Code installed, run:
+
+```bash
+code .
+```
+
+**Note:** Make sure Git is installed before cloning the repository. You can check its installation using:
+
+```bash
+git --version
 ```
 
 ### 2. Start the Environment
